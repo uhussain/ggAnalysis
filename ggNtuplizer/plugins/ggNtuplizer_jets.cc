@@ -11,6 +11,7 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandGauss.h"
+#include "ggAnalysis/JetWidthCalculator/interface/JetWidthCalculator.hh"
 
 using namespace std;
 typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LorentzVector;
@@ -18,6 +19,8 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LorentzVector;
 // ak4 jets
 Int_t          nJet_;
 vector<float>  jetPt_;
+double j1etaWidth;
+double  j1phiWidth;
 vector<float>  jetEn_;
 vector<float>  jetEta_;
 vector<float>  jetPhi_;
@@ -157,6 +160,8 @@ vector< vector<float> > AK8puppiSDSJCSV_ ;
 void ggNtuplizer::branchesJets(TTree* tree) {
   
   tree->Branch("nJet",            &nJet_);
+  tree->Branch("j1etaWidth", &j1etaWidth);
+  tree->Branch("j1phiWidth", &j1phiWidth);
   tree->Branch("jetPt",           &jetPt_);
   tree->Branch("jetEn",           &jetEn_);
   tree->Branch("jetEta",          &jetEta_);
@@ -302,6 +307,8 @@ void ggNtuplizer::branchesJets(TTree* tree) {
 void ggNtuplizer::fillJets(const edm::Event& e, const edm::EventSetup& es) {
 
   // cleanup from previous execution
+  //j1etaWidth_.clear();
+  //j1phiWidth_.clear();
   jetPt_                                  .clear();
   jetEn_                                  .clear();
   jetEta_                                 .clear();
@@ -477,6 +484,10 @@ void ggNtuplizer::fillJets(const edm::Event& e, const edm::EventSetup& es) {
   for (edm::View<pat::Jet>::const_iterator iJet = jetHandle->begin(); iJet != jetHandle->end(); ++iJet) {
     
     if (iJet->pt() < 20) continue;
+    const pat::Jet &j1 = jetHandle->front();
+    JetWidthCalculator jwc(j1);
+    j1etaWidth = jwc.getEtaWidth();
+    j1phiWidth = jwc.getPhiWidth();
     jetPt_.push_back(    iJet->pt());
     jetEn_.push_back(    iJet->energy());
     jetEta_.push_back(   iJet->eta());
