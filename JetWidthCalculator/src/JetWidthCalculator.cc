@@ -27,14 +27,14 @@ JetWidthCalculator::JetWidthCalculator(const pat::Jet& jet) {
   double phiSqSumInHCal = 0;
   */
   double packedCands = jet.numberOfDaughters();
-  //std::cout<<"No. of pfCands/Constituents of a jet: "<<pfCands.size()<<std::endl;
+  //std::cout<<"No. of packedCands/Constituents of a jet: "<<packedCands<<std::endl;
  // double nPhotons = 0;
  // double nCHPions = 0;
  // double nMiscParticles=0;
   for(uint32_t i = 0; i < packedCands;  i++) {
     const reco::Candidate *pfCand = jet.daughter(i);
     //std::cout<<i+1<<")"<<"PfCand constituent of Jet: "<< pfCand->pdgId()<<std::endl;
-  /*  if (pfCand->pdgId() == 211 || pfCand->pdgId() == -211){
+    if (pfCand->pdgId() == 211 || pfCand->pdgId() == -211){
     nCHPions++;
     }
     else if (pfCand->pdgId() == 22){
@@ -42,7 +42,9 @@ JetWidthCalculator::JetWidthCalculator(const pat::Jet& jet) {
     }
     else{
     nMiscParticles++;
-    }*/
+    PID.push_back(pfCand->pdgId());
+    //std::cout<<"PfCand constituent of Jet: "<< pfCand->pdgId()<<std::endl;
+    }
     ptSum +=pfCand->pt();
     etSum += pfCand->et();
     //float frac = (etSum/jetet);
@@ -68,18 +70,18 @@ JetWidthCalculator::JetWidthCalculator(const pat::Jet& jet) {
   if (packedCands>1){
       pfCand1pt = jet.daughter(0)->pt();
       pfCand2pt = jet.daughter(1)->pt();
-      std::cout<<"pfCand1pt("<<jet.daughter(0)->pdgId()<<"): " <<pfCand1pt<<std::endl;
-      std::cout<<"pfCand2pt("<<jet.daughter(1)->pdgId()<<"): " <<pfCand2pt<<std::endl;
+     // std::cout<<"pfCand1pt("<<jet.daughter(0)->pdgId()<<"): " <<pfCand1pt<<std::endl;
+     // std::cout<<"pfCand2pt("<<jet.daughter(1)->pdgId()<<"): " <<pfCand2pt<<std::endl;
       }
   else{
       pfCand1pt = jet.daughter(0)->pt(); 
-      std::cout<<"pfCand1pt("<<jet.daughter(0)->pdgId()<<"): " <<pfCand1pt<<std::endl;
+     // std::cout<<"pfCand1pt("<<jet.daughter(0)->pdgId()<<"): " <<pfCand1pt<<std::endl;
       }
   pfCand12PtSum = pfCand1pt + pfCand2pt;
-  std::cout<<"ptSum: " <<ptSum<<std::endl;
-  std::cout<<"pfCand12PtSum: "<<pfCand12PtSum<<std::endl;
+  //std::cout<<"ptSum: " <<ptSum<<std::endl;
+  //std::cout<<"pfCand12PtSum: "<<pfCand12PtSum<<std::endl;
   pt12ratio = (pfCand12PtSum/ptSum);
-  std::cout<<"pt12ratio: "<<pt12ratio<<std::endl; 
+  //std::cout<<"pt12ratio: "<<pt12ratio<<std::endl; 
   if(etSum < 0.000001) etSum = 0.000001; // To avoid NaNs
   double etaAve = etaSum / etSum;
   double etaSqAve = etaSqSum / etSum;

@@ -21,6 +21,10 @@ Int_t          nJet_;
 vector<float>  jetPt_;
 double j1etaWidth;
 double  j1phiWidth;
+double j1nPhotons;
+double j1nCHPions;
+double j1nMisc;
+vector<int> j1MiscPID;   
 vector<float>  jetEn_;
 vector<float>  jetEta_;
 vector<float>  jetPhi_;
@@ -162,6 +166,10 @@ void ggNtuplizer::branchesJets(TTree* tree) {
   tree->Branch("nJet",            &nJet_);
   tree->Branch("j1etaWidth", &j1etaWidth);
   tree->Branch("j1phiWidth", &j1phiWidth);
+  tree->Branch("j1nPhotons",&j1nPhotons);                                                                
+  tree->Branch("j1nCHPions",&j1nCHPions);                              
+  tree->Branch("j1nMisc",&j1nMisc);                                 
+  tree->Branch("j1MiscPID",&j1MiscPID);                               
   tree->Branch("jetPt",           &jetPt_);
   tree->Branch("jetEn",           &jetEn_);
   tree->Branch("jetEta",          &jetEta_);
@@ -488,6 +496,10 @@ void ggNtuplizer::fillJets(const edm::Event& e, const edm::EventSetup& es) {
     JetWidthCalculator jwc(j1);
     j1etaWidth = jwc.getEtaWidth();
     j1phiWidth = jwc.getPhiWidth();
+    j1nPhotons = jwc.getnPhotons();
+    j1nCHPions = jwc.getnCHPions();
+    j1nMisc = jwc.getMiscParticles();
+    j1MiscPID = jwc.getPID();
     jetPt_.push_back(    iJet->pt());
     jetEn_.push_back(    iJet->energy());
     jetEta_.push_back(   iJet->eta());
@@ -678,6 +690,7 @@ void ggNtuplizer::fillJets(const edm::Event& e, const edm::EventSetup& es) {
     nJet_++;
   }
   
+  std::cout<<"j1etaWidth: "<<j1etaWidth<<std::endl;
   if (dumpSubJets_) {
     edm::Handle<edm::View<pat::Jet> > jetsAK8;
     e.getByToken(jetsAK8Label_, jetsAK8);

@@ -24,7 +24,12 @@ public:
 
   double getPFCand12PtSum() {return pfCand12PtSum;}
   double getPFCandsPtSum() {return ptSum;}
-  double getPFCand12Ratio() {return pt12ratio;} 
+  double getPFCand12Ratio() {return pt12ratio;}
+
+  double getnPhotons(){return nPhotons;}
+  double getnCHPions(){return nCHPions;}
+  double getMiscParticles(){return nMiscParticles;}
+  vector<int> getPID(){return PID;}
 private:
 
   // No default constructor is possible
@@ -50,6 +55,11 @@ private:
   double pfCand12PtSum;
   double ptSum;
   double pt12ratio;
+
+  double nPhotons;
+  double nCHPions;
+  double nMiscParticles;
+  vector<int> PID;
 };
 
 #endif
