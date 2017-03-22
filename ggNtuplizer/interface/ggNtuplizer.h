@@ -1,6 +1,8 @@
 #ifndef ggNtuplizer_h
 #define ggNtuplizer_h
 
+#include <vector>
+#include <cstdint>
 #include "TTree.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -27,6 +29,8 @@
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 #include "JetMETCorrections/Modules/interface/JetResolution.h"
 //#include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
+#include "Math/DisplacementVector2D.h"
+typedef ROOT::Math::DisplacementVector2D<ROOT::Math::Cartesian2D<float>> Vector2D;
 
 using namespace std;
 
@@ -39,7 +43,9 @@ class ggNtuplizer : public edm::EDAnalyzer {
   ~ggNtuplizer();
   
   //   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
+  Vector2D vector2(const math::XYZTLorentzVector& vec) {
+        return Vector2D(vec.px(), vec.py());
+  }
  private:
   
   //   virtual void beginJob() {};
@@ -121,6 +127,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<vector<PileupSummaryInfo> >     puCollection_;
   edm::EDGetTokenT<vector<reco::GenParticle> >     genParticlesCollection_;
   edm::EDGetTokenT<edm::View<pat::MET> >           pfMETlabel_;
+  edm::EDGetTokenT<edm::View<pat::MET> >           altpfMETlabel_;
   edm::EDGetTokenT<edm::View<pat::Electron> >      electronCollection_;
   edm::EDGetTokenT<edm::View<pat::Electron> >      calibelectronCollection_;
   edm::EDGetTokenT<edm::View<pat::Photon> >        photonCollection_;

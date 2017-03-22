@@ -68,7 +68,7 @@ void ggNtuplizer::fillGlobalEvent(const edm::Event& e, const edm::EventSetup& es
   rho_    = *(rhoHandle.product());
   if (rhoCentralHandle.isValid()) rhoCentral_ = *(rhoCentralHandle.product());
   else rhoCentral_ = -99.;
-
+  std::cout<<run_<<":"<<lumis_<<":"<<event_<<std::endl;
   edm::Handle<reco::VertexCollection> vtxHandle;
   e.getByToken(vtxLabel_, vtxHandle);
   

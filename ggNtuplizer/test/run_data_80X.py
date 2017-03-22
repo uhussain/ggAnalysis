@@ -15,8 +15,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v7'
 
 #process.Tracer = cms.Service("Tracer")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 #jec from sqlite
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
@@ -38,7 +38,8 @@ process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-        '/store/data/Run2016E/DoubleMuon/MINIAOD/03Feb2017-v1/100000/062FB971-1AED-E611-965F-0CC47A4C8F12.root'
+        '/store/data/Run2016B/MET/MINIAOD/03Feb2017_ver2-v2/100000/028C28AD-47EE-E611-861A-0025905A48EC.root'
+        #'/store/data/Run2016E/DoubleMuon/MINIAOD/03Feb2017-v1/100000/062FB971-1AED-E611-965F-0CC47A4C8F12.root'
         #'/store/data/Run2016H/DoubleMuon/MINIAOD/PromptReco-v3/000/284/036/00000/04DC0281-C89F-E611-81C6-02163E0141E6.root'
         #'/store/data/Run2016B/SingleElectron/MINIAOD/23Sep2016-v2/80000/5A4402F5-638C-E611-A471-0025905A60AA.root'
         )
@@ -123,6 +124,7 @@ process.slimmedMETsMuEGClean.src = cms.InputTag("patPFMetT1MuEGClean")
 process.slimmedMETsMuEGClean.rawVariation =  cms.InputTag("patPFMetRawMuEGClean")
 process.slimmedMETsMuEGClean.t1Uncertainties = cms.InputTag("patPFMetT1%sMuEGClean")
 del process.slimmedMETsMuEGClean.caloMET
+#process.slimmedMETsMuEGClean.caloMET
 
 process.egcorrMET = cms.Sequence(
         process.cleanedPhotonsMuEGClean+process.cleanedCorPhotonsMuEGClean+
@@ -152,6 +154,7 @@ process.ggNtuplizer.dumpSubJets=cms.bool(True)
 process.ggNtuplizer.dumpJets=cms.bool(True)
 process.ggNtuplizer.dumpTaus=cms.bool(False)
 process.ggNtuplizer.pfMETLabel=cms.InputTag("slimmedMETsMuEGClean", "", "ggKit")
+#process.ggNtuplizer.altpfMETLabel=cms.InputTag("slimmedMETs", "", "PAT")
 ## the following line is only needed when you run on Feb 2017 re-miniAOD
 process.ggNtuplizer.patTriggerResults=cms.InputTag("TriggerResults", "", "PAT")
 
