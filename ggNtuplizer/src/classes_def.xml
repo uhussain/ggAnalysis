@@ -1,0 +1,4 @@
+<lcgdict>
+    <class name="ROOT::Math::Cartesian2D<float>"/>
+        <class name="ROOT::Math::DisplacementVector2D<ROOT::Math::Cartesian2D<float>>"/>
+</lcgdict>
