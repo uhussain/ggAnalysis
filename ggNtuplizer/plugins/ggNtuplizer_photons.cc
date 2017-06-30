@@ -15,7 +15,6 @@ vector<float>  phoCalibE_;
 vector<float>  phoCalibEt_;
 vector<float>  phoSCE_;
 vector<float>  phoSCRawE_;
-vector<float>  phoESEn_;
 vector<float>  phoESEnP1_;
 vector<float>  phoESEnP2_;
 vector<float>  phoSCEta_;
@@ -100,10 +99,18 @@ vector<float>  phoSeedEnergy_;
 //vector<float>  phoMIPIntercept_;
 //vector<float>  phoMIPNhitCone_;
 //vector<float>  phoMIPIsHalo_;
-
 vector<UShort_t> phoxtalBits_;
-
 vector<UShort_t> phoIDbit_;
+vector<float>    phoScale_stat_up_;
+vector<float>    phoScale_stat_dn_;
+vector<float>    phoScale_syst_up_;
+vector<float>    phoScale_syst_dn_;
+vector<float>    phoScale_gain_up_;
+vector<float>    phoScale_gain_dn_;
+vector<float>    phoResol_rho_up_;
+vector<float>    phoResol_rho_dn_;
+vector<float>    phoResol_phi_up_;
+vector<float>    phoResol_phi_dn_;
 
 //Necessary for the Photon Footprint removal
 template <class T, class U>
@@ -127,7 +134,6 @@ void ggNtuplizer::branchesPhotons(TTree* tree) {
   tree->Branch("phoCalibEt",              &phoCalibEt_);
   tree->Branch("phoSCE",                  &phoSCE_);
   tree->Branch("phoSCRawE",               &phoSCRawE_);
-  tree->Branch("phoESEn",                 &phoESEn_);
   tree->Branch("phoESEnP1",               &phoESEnP1_);
   tree->Branch("phoESEnP2",               &phoESEnP2_);
   tree->Branch("phoSCEta",                &phoSCEta_);
@@ -215,8 +221,18 @@ void ggNtuplizer::branchesPhotons(TTree* tree) {
   //tree->Branch("phoMIPNhitCone",                  &phoMIPNhitCone_);
   //tree->Branch("phoMIPIsHalo",                    &phoMIPIsHalo_);
 
-  tree->Branch("phoxtalBits", &phoxtalBits_);
-  tree->Branch("phoIDbit",    &phoIDbit_);
+  tree->Branch("phoxtalBits",      &phoxtalBits_);
+  tree->Branch("phoIDbit",         &phoIDbit_);
+  tree->Branch("phoScale_stat_up", &phoScale_stat_up_);
+  tree->Branch("phoScale_stat_dn", &phoScale_stat_dn_);
+  tree->Branch("phoScale_syst_up", &phoScale_syst_up_);
+  tree->Branch("phoScale_syst_dn", &phoScale_syst_dn_);
+  tree->Branch("phoScale_gain_up", &phoScale_gain_up_);
+  tree->Branch("phoScale_gain_dn", &phoScale_gain_dn_);
+  tree->Branch("phoResol_rho_up",  &phoResol_rho_up_);
+  tree->Branch("phoResol_rho_dn",  &phoResol_rho_dn_);
+  tree->Branch("phoResol_phi_up",  &phoResol_phi_up_);
+  tree->Branch("phoResol_phi_dn",  &phoResol_phi_dn_);
 
 }
 
@@ -231,7 +247,6 @@ void ggNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es) {
   phoCalibEt_           .clear();
   phoSCE_               .clear();
   phoSCRawE_            .clear();
-  phoESEn_              .clear();
   phoESEnP1_            .clear();
   phoESEnP2_            .clear();
   phoSCEta_             .clear();
@@ -320,8 +335,18 @@ void ggNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es) {
   photrkSumPtSolidConeDR03_       .clear();
   */
 
-  phoIDbit_                       .clear();
-  
+  phoIDbit_        .clear();
+  phoScale_stat_up_.clear();
+  phoScale_stat_dn_.clear();
+  phoScale_syst_up_.clear();
+  phoScale_syst_dn_.clear();
+  phoScale_gain_up_.clear();
+  phoScale_gain_dn_.clear();
+  phoResol_rho_up_ .clear();
+  phoResol_rho_dn_ .clear();
+  phoResol_phi_up_ .clear();
+  phoResol_phi_dn_ .clear();  
+
   nPho_ = 0;
 
   edm::Handle<edm::View<pat::Photon> > photonHandle;
@@ -434,7 +459,6 @@ void ggNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es) {
     phoPhi_           .push_back(iPho->phi());
     phoSCE_           .push_back((*iPho).superCluster()->energy());
     phoSCRawE_        .push_back((*iPho).superCluster()->rawEnergy());
-    phoESEn_          .push_back((*iPho).superCluster()->preshowerEnergy());
     phoESEnP1_        .push_back((*iPho).superCluster()->preshowerEnergyPlane1());
     phoESEnP2_        .push_back((*iPho).superCluster()->preshowerEnergyPlane2());
     phoSCEta_         .push_back((*iPho).superCluster()->eta());
@@ -476,6 +500,40 @@ void ggNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es) {
       phoSeedEnergy_.push_back(-99.);
     }
 
+    // ECAL scale correction and smearing
+    float et = iPho->et();
+    unsigned int gainSeedSC = 12;
+    if (theSeedHit != rechits->end()) { 
+      if(theSeedHit->checkFlag(EcalRecHit::kHasSwitchToGain6)) gainSeedSC = 6;
+      if(theSeedHit->checkFlag(EcalRecHit::kHasSwitchToGain1)) gainSeedSC = 1;
+    }
+    int runNumber = e.id().run();
+    double scale = egmScaler_->ScaleCorrection(runNumber, iPho->isEB(), iPho->full5x5_r9(), fabs(iPho->eta()), et, gainSeedSC);  
+    double smear = egmScaler_->getSmearingSigma(runNumber, iPho->isEB(), iPho->full5x5_r9(), fabs(iPho->eta()), et, gainSeedSC, 0., 0.);
+  
+    float scale_stat_up = scale + egmScaler_->ScaleCorrectionUncertainty(runNumber, iPho->isEB(), iPho->full5x5_r9(), fabs(iPho->eta()), et, gainSeedSC, 1);
+    float scale_stat_dn = scale - egmScaler_->ScaleCorrectionUncertainty(runNumber, iPho->isEB(), iPho->full5x5_r9(), fabs(iPho->eta()), et, gainSeedSC, 1);
+    float scale_syst_up = scale + egmScaler_->ScaleCorrectionUncertainty(runNumber, iPho->isEB(), iPho->full5x5_r9(), fabs(iPho->eta()), et, gainSeedSC, 2);
+    float scale_syst_dn = scale - egmScaler_->ScaleCorrectionUncertainty(runNumber, iPho->isEB(), iPho->full5x5_r9(), fabs(iPho->eta()), et, gainSeedSC, 2);
+    float scale_gain_up = scale + egmScaler_->ScaleCorrectionUncertainty(runNumber, iPho->isEB(), iPho->full5x5_r9(), fabs(iPho->eta()), et, gainSeedSC, 4);
+    float scale_gain_dn = scale - egmScaler_->ScaleCorrectionUncertainty(runNumber, iPho->isEB(), iPho->full5x5_r9(), fabs(iPho->eta()), et, gainSeedSC, 4);
+    float resol_rho_up  = egmScaler_->getSmearingSigma(runNumber, iPho->isEB(), iPho->full5x5_r9(), fabs(iPho->eta()), et, gainSeedSC, 1., 0.);
+    float resol_rho_dn  = egmScaler_->getSmearingSigma(runNumber, iPho->isEB(), iPho->full5x5_r9(), fabs(iPho->eta()), et, gainSeedSC, -1., 0.);
+    float resol_phi_up  = egmScaler_->getSmearingSigma(runNumber, iPho->isEB(), iPho->full5x5_r9(), fabs(iPho->eta()), et, gainSeedSC, 0., 1.);
+    float resol_phi_dn = egmScaler_->getSmearingSigma(runNumber, iPho->isEB(), iPho->full5x5_r9(), fabs(iPho->eta()), et, gainSeedSC, 0., -1.);
+    
+    phoScale_stat_up_.push_back(scale_stat_up);
+    phoScale_stat_dn_.push_back(scale_stat_dn);
+    phoScale_syst_up_.push_back(scale_syst_up);
+    phoScale_syst_dn_.push_back(scale_syst_dn);
+    phoScale_gain_up_.push_back(scale_gain_up);
+    phoScale_gain_dn_.push_back(scale_gain_dn);
+    phoResol_rho_up_.push_back(resol_rho_up);
+    phoResol_rho_dn_.push_back(resol_rho_dn);
+    phoResol_phi_up_.push_back(resol_phi_up);
+    phoResol_phi_dn_.push_back(resol_phi_dn);
+    /////////////////////////////////END of energy and scale systematics
+    
     /// if( isBarrel ) {
     ///     EBDetId ebId(seed);
     ///     cout << "seed barrel " << ebId.ieta() << " " << ebId.iphi() << endl;

@@ -23,10 +23,11 @@
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "HiggsAnalysis/HiggsTo2photons/interface/CiCPhotonID.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
+#include "EgammaAnalysis/ElectronTools/interface/EnergyScaleCorrection_class.h"
+#include "HiggsAnalysis/HiggsTo2photons/interface/CiCPhotonID.h"
 #include "JetMETCorrections/Modules/interface/JetResolution.h"
 //#include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 #include "Math/DisplacementVector2D.h"
@@ -76,6 +77,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   void branchesMuons      (TTree*);
   void branchesTaus       (TTree*);
   void branchesJets       (TTree*);
+  void branchesMuonPairs  (TTree*);
 
   void fillGlobalEvent(const edm::Event&, const edm::EventSetup&);
   void fillGenInfo    (const edm::Event&);
@@ -88,6 +90,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   void fillMuons      (const edm::Event&, math::XYZPoint&, const reco::Vertex);
   void fillTaus       (const edm::Event&);
   void fillJets       (const edm::Event&, const edm::EventSetup&);
+  void fillMuonsPairs (const edm::Event&, const edm::EventSetup&, math::XYZPoint&, const reco::Vertex);
 
   void cleanupPhotons();
 
@@ -104,6 +107,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   bool dumpSubJets_;
   bool dumpSoftDrop_;
   bool dumpPDFSystWeight_;
+  bool dumpMuonsPairs_;
 
   bool isAOD_;
   bool runHFElectrons_;
@@ -182,6 +186,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<edm::ValueMap<float> > elePFClusEcalIsoToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > elePFClusHcalIsoToken_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidateCollection_;
+
   //check
   edm::EDGetToken gsfEle_;
 
@@ -190,8 +195,10 @@ class ggNtuplizer : public edm::EDAnalyzer {
   TH1F    *hPU_;
   TH1F    *hPUTrue_;
   TH1F    *hGenWeight_;
+  TH1F    *hSumGenWeight_;
 
-  CiCPhotonID    *cicPhotonId_;
+  CiCPhotonID                 *cicPhotonId_;
+  EnergyScaleCorrection_class *egmScaler_;
 
   JME::JetResolution            jetResolution_;
   JME::JetResolutionScaleFactor jetResolutionSF_;
