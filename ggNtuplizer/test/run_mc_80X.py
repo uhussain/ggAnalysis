@@ -14,8 +14,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '80X_mcRun2_asymptotic_2016_Tra
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #process.Tracer = cms.Service("Tracer")
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 #jec from sqlite
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
@@ -36,9 +36,14 @@ process.jec = cms.ESSource("PoolDBESSource",CondDBSetup,
 process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring(
+        fileNames = cms.untracked.vstring(#'file:/data/uhussain/signalProduction/steps/CMSSW_8_0_3_patch2/src/Zprime_mchi_20GeV_4.root'
+        #'/store/mc/RunIISummer16MiniAODv2/ZJetsToNuNu_HT-200To400_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/120000/029F6BD2-5AC9-E611-BD77-0025907DC9D6.root'
+        #'/store/mc/RunIISummer16MiniAODv2/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext2-v1/100000/00933E2A-A0D5-E611-B2CD-00266CF89130.root'
+        '/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/50000/04A553E5-6FC0-E611-AEB5-0CC47AD9914C.root'
+        #'/store/mc/RunIISummer16MiniAODv2/ZJetsToNuNu_HT-400To600_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/50000/067DEA13-96BE-E611-BE18-0025905A6138.root' 
+        #'/store/mc/RunIISpring16MiniAODv2/ZJetsToNuNu_HT-400To600_13TeV-madgraph/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/00000/0AD3736B-3C51-E611-90F0-FA163E4E473B.root'
         #'/store/mc/RunIISpring16MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext4-v1/00000/004A0552-3929-E611-BD44-0025905A48F0.root'
-        '/store/mc/RunIISummer16MiniAODv2/WWTo2L2Nu_13TeV-powheg/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/80000/08E155A9-FAB6-E611-92BF-00259073E45E.root'
+        #'/store/mc/RunIISummer16MiniAODv2/WWTo2L2Nu_13TeV-powheg/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/80000/08E155A9-FAB6-E611-92BF-00259073E45E.root'
         ))
 
 #process.load("PhysicsTools.PatAlgos.patSequences_cff")
@@ -111,9 +116,9 @@ process.ggNtuplizer.jecAK8PayloadNames=cms.vstring(jecLevels)
 process.ggNtuplizer.runHFElectrons=cms.bool(True)
 process.ggNtuplizer.isAOD=cms.bool(False)
 process.ggNtuplizer.doGenParticles=cms.bool(True)
-process.ggNtuplizer.dumpSubJets=cms.bool(True)
+process.ggNtuplizer.dumpSubJets=cms.bool(False)
 process.ggNtuplizer.dumpJets=cms.bool(True)
-process.ggNtuplizer.dumpTaus=cms.bool(False)
+process.ggNtuplizer.dumpTaus=cms.bool(True)
 process.ggNtuplizer.patTriggerResults=cms.InputTag("TriggerResults", "", "PAT")
 
 #####VID framework####################

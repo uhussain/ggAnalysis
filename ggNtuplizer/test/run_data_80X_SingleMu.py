@@ -15,7 +15,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v7'
 
 #process.Tracer = cms.Service("Tracer")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 #jec from sqlite
@@ -193,7 +193,7 @@ process.singleMuHLTFilter = cms.EDFilter("HLTHighLevel",
                                          throw = cms.bool(True)  # Tolerate if triggers not available
                                          )
 
-    process.p = cms.Path(
+process.p = cms.Path(
         ###process.reapplyJEC*
         ###process.pfImpactParameterTagInfosAK8 *
         ###process.pfInclusiveSecondaryVertexFinderTagInfosAK8 *

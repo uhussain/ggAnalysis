@@ -54,7 +54,7 @@ def submit(config):
 
 from CRABClient.UserUtilities import config
 config = config()
-name = 'Zprime_Ntuples_Aug10'
+name = 'Zprime_Ntuples_Oct25'
 config.General.workArea = 'crab_'+name
 config.General.transferOutputs = True
 config.General.transferLogs = True
@@ -69,10 +69,10 @@ config.JobType.inputFiles = ['Summer16_23Sep2016V4_MC.db','Summer16_23Sep2016V4_
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'FileBased'
 #Already submitted:
-listOfSamples = ['GJets_HT-40To100','GJets_HT-100To200','GJets_HT-200To400','GJets_HT-400To600','GJets_HT-600ToInf','TTJets','TTJets1','QCD_HT100to200','QCD_HT200to300','QCD_HT300to500','QCD_HT500to700','QCD_HT700to1000','QCD_HT1000to1500','QCD_HT1500to2000','QCD_HT2000toInf','WJetsFXFX','WJets','W1Jets','W2Jets','W3Jets','W4Jets','W5Jets','W6Jets','W7Jets','WW','WZ','ZZ','DYJetsToLL','DYJets_HT100to200','DYJets_HT200to400','DYJets_HT400to600','DYJets_HT600to800','DYJets_HT800to1200','DYJets_HT1200to2500','DYJets_HT2500toInf','Zvv100to200','Zvv200to400','Zvv400to600','Zvv600to800','Zvv800to1200','Zvv1200to2500','Zvv2500toInf']
-#listOfSamples = ['DYJetsToLL','DYJets_HT100to200','DYJets_HT200to400','DYJets_HT400to600','DYJets_HT600to800','DYJets_HT800to1200','DYJets_HT1200to2500','DYJets_HT2500toInf']
+#listOfSamples = ['GJets_HT-40To100','GJets_HT-100To200','GJets_HT-200To400','GJets_HT-400To600','GJets_HT-600ToInf','TTJets','TTJets1','QCD_HT100to200','QCD_HT200to300','QCD_HT300to500','QCD_HT500to700','QCD_HT700to1000','QCD_HT1000to1500','QCD_HT1500to2000','QCD_HT2000toInf','WJetsFXFX','WJets','W1Jets','W2Jets','W3Jets','W4Jets','W5Jets','W6Jets','W7Jets','WW','WZ','ZZ','DYJetsToLL','DYJets_HT100to200','DYJets_HT200to400','DYJets_HT400to600','DYJets_HT600to800','DYJets_HT800to1200','DYJets_HT1200to2500','DYJets_HT2500toInf','Zvv100to200','Zvv200to400','Zvv400to600','Zvv600to800','Zvv800to1200','Zvv1200to2500','Zvv2500toInf']
+listOfSamples = ['DYJets_HT100to200','DYJets_HT200to400','DYJets_HT400to600','DYJets_HT600to800','DYJets_HT800to1200','DYJets_HT1200to2500','DYJets_HT2500toInf']
 #listOfSamples=['WJets','W1Jets','W2Jets','W3Jets','W4Jets','W5Jets','W6Jets','W7Jets','Zvv100to200','Zvv200to400','Zvv400to600','Zvv600to800','Zvv800to1200','Zvv1200to2500','Zvv2500toInf']
-#listOfSamples = ['DYJetsToLL']
+#listOfSamples = ['DYJets_HT100to200_ext','DYJets_HT200to400_ext','DYJets_HT400to600_ext']
 for sample in listOfSamples:  
   config.General.requestName = sample
   config.Data.inputDataset = dataset[sample]

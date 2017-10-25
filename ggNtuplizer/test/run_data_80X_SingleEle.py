@@ -15,7 +15,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v7'
 
 #process.Tracer = cms.Service("Tracer")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 #jec from sqlite
@@ -38,7 +38,8 @@ process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-        '/store/data/Run2016E/DoubleMuon/MINIAOD/03Feb2017-v1/100000/062FB971-1AED-E611-965F-0CC47A4C8F12.root'
+        #'/store/data/Run2016E/DoubleMuon/MINIAOD/03Feb2017-v1/100000/062FB971-1AED-E611-965F-0CC47A4C8F12.root'
+        '/store/data/Run2016G/DoubleEG/MINIAOD/03Feb2017-v1/100000/002F14FF-D0EA-E611-952E-008CFA197AF4.root' 
         #'/store/data/Run2016H/DoubleMuon/MINIAOD/PromptReco-v3/000/284/036/00000/04DC0281-C89F-E611-81C6-02163E0141E6.root'
         #'/store/data/Run2016B/SingleElectron/MINIAOD/23Sep2016-v2/80000/5A4402F5-638C-E611-A471-0025905A60AA.root'
         )
@@ -193,7 +194,7 @@ process.singleEleHLTFilter = cms.EDFilter("HLTHighLevel",
                                           throw = cms.bool(True) # Tolerate if triggers not available
                                           )
 
-    process.p = cms.Path(
+process.p = cms.Path(
         ###process.reapplyJEC*
         ###process.pfImpactParameterTagInfosAK8 *
         ###process.pfInclusiveSecondaryVertexFinderTagInfosAK8 *
