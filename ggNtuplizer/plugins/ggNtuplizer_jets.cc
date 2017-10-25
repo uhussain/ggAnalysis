@@ -329,12 +329,19 @@ void ggNtuplizer::fillJets(const edm::Event& e, const edm::EventSetup& es) {
   // cleanup from previous execution
   //j1etaWidth_.clear();
   //j1phiWidth_.clear();
+  j1etaWidth = 0;
+  j1phiWidth = 0;
+  j1nPhotons = 0;
+  j1nCHPions = 0;
+  j1nMisc = 0;
+
 
   j1PFConsPt.clear();
   j1PFConsEta.clear();
   j1PFConsPhi.clear();
   j1PFConsEt.clear();
   j1PFConsPID.clear();
+  j1MiscPID.clear();
   jetPt_                                  .clear();
   jetEn_                                  .clear();
   jetEta_                                 .clear();
@@ -506,6 +513,8 @@ void ggNtuplizer::fillJets(const edm::Event& e, const edm::EventSetup& es) {
   JetCorrectionUncertainty *AK8jecUnc=0;
   AK8jecUnc = new JetCorrectionUncertainty(AK8JetCorPar);
   
+  //This Vector will allow us to sort the daughters of leading jet by PT
+  std::vector<std::pair<double,const reco::Candidate*>> j1Daughters;//pdgId = 211 
   //start jets Lvdp
   for (edm::View<pat::Jet>::const_iterator iJet = jetHandle->begin(); iJet != jetHandle->end(); ++iJet) {
     
@@ -528,16 +537,19 @@ void ggNtuplizer::fillJets(const edm::Event& e, const edm::EventSetup& es) {
       j1Daughters.push_back({dauCandPt,dauCand});}
     //sort these j1Daughters in descending order by Pt
     std::sort(j1Daughters.begin(),j1Daughters.end(),[](const auto& p1, const auto& p2){return p1.first>p2.first;});
+    //std::cout<<"j1DaughtersSize: "<<j1Daughters.size()<<std::endl;
     for(uint32_t i = 0; i < j1Daughters.size();  i++) {
       const reco::Candidate *pfCand = j1Daughters.at(i).second;
       //In our signal, we are mostly interested in the leading 3 highPT daughters but we save info about all in the j1PFCons__ vectors
-      if(i<3){
-      std::cout<<"("<<i+1<<") Pt: "<<pfCand->pt()<<" PdgID: "<<pfCand->pdgId()<<std::endl;}
+      //if(i<3){
+        //std::cout<<"("<<i+1<<") Pt: "<<pfCand->pt()<<" PdgID: "<<pfCand->pdgId()<<std::endl;}
       j1PFConsPt.push_back(pfCand->pt());
       j1PFConsEta.push_back(pfCand->eta());
       j1PFConsPhi.push_back(pfCand->phi());
       j1PFConsEt.push_back(pfCand->et()); 
       j1PFConsPID.push_back(pfCand->pdgId());
+      //if(abs(pfCand->charge())==1 && abs(pfCand->pdgId())>40 && abs(pfCand->pdgId())!=211){
+        //std::cout<<"(Not a ChargedPion) Pt: "<<pfCand->pt()<<" PdgID: "<<pfCand->pdgId()<<std::endl;}
     }
     }//if condition closing for the leading jet
     jetPt_.push_back(    iJet->pt());
@@ -730,7 +742,7 @@ void ggNtuplizer::fillJets(const edm::Event& e, const edm::EventSetup& es) {
     nJet_++;
   }
   
-  std::cout<<"j1etaWidth: "<<j1etaWidth<<std::endl;
+  //std::cout<<"j1etaWidth: "<<j1etaWidth<<std::endl;
   if (dumpSubJets_) {
     edm::Handle<edm::View<pat::Jet> > jetsAK8;
     e.getByToken(jetsAK8Label_, jetsAK8);

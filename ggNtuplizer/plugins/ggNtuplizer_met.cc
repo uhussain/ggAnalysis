@@ -33,10 +33,8 @@ float pfMETPhi_T1JESDo_;
 float pfMETPhi_T1UESUp_;
 float pfMETPhi_T1UESDo_;
 Vector2D caloMet;
-Vector2D altcaloMet;
 float caloMET_;
 float altpfMET_;
-float altcaloMET_;
 
 void ggNtuplizer::branchesMET(TTree* tree) {
 
@@ -153,19 +151,18 @@ void ggNtuplizer::fillMET(const edm::Event& e, const edm::EventSetup& es) {
   pfMETmEtSig_ = -99;
   pfMETSig_    = -99;
   altpfMET_ = -99;
-  altcaloMET_ = -99;
   if (altpfMETHandle.isValid()) {
     const pat::MET *altpfMET = 0;
     altpfMET = &(altpfMETHandle->front());
 
     altpfMET_       = altpfMET->et();
 
-    altcaloMet = Vector2D(altpfMET->caloMETP2().px, altpfMET->caloMETP2().py);
-    altcaloMET_ = caloMet.R();
+    caloMet = Vector2D(altpfMET->caloMETP2().px, altpfMET->caloMETP2().py);
+    caloMET_ = caloMet.R();
 
-    std::cout<<"caloMET = "<<altcaloMET_<<std::endl;
-    std::cout<<"pfMET = "<<altpfMET_<<std::endl;
-    std::cout<<"metcut: "<<((abs(altcaloMET_-altpfMET_))/(altpfMET_))<<std::endl;
+    //std::cout<<"caloMET = "<<caloMET_<<std::endl;
+    //std::cout<<"altpfMET = "<<altpfMET_<<std::endl;
+    //std::cout<<"metcut: "<<((abs(caloMET_-altpfMET_))/(altpfMET_))<<std::endl;
   }
   if (pfMETHandle.isValid()) {
     const pat::MET *pfMET = 0;
@@ -177,11 +174,10 @@ void ggNtuplizer::fillMET(const edm::Event& e, const edm::EventSetup& es) {
     pfMETmEtSig_ = (pfMET->mEtSig() < 1.e10) ? pfMET->mEtSig() : 0;
     pfMETSig_    = (pfMET->significance() < 1.e10) ? pfMET->significance() : 0;;
 
-    caloMet = Vector2D(pfMET->caloMETP2().px, pfMET->caloMETP2().py);
-    caloMET_ = caloMet.R();
-    std::cout<<"caloMET = "<<caloMET_<<std::endl;
-    std::cout<<"pfMET = ("<<pfMET_<<", "<<pfMETPhi_<<")"<<std::endl;
-    std::cout<<"metcut: "<<((abs(caloMET_-pfMET_))/(pfMET_))<<std::endl;
+    //caloMet = Vector2D(pfMET->caloMETP2().px, pfMET->caloMETP2().py);
+    //caloMET_ = caloMet.R();
+    //std::cout<<"pfMET = ("<<pfMET_<<", "<<pfMETPhi_<<")"<<std::endl;
+    //std::cout<<"metcut: "<<((abs(caloMET_-pfMET_))/(pfMET_))<<std::endl;
     if (!isAOD_) {
       // Type1MET uncertainties =======================================
       pfMET_T1JERUp_ = pfMET->shiftedPt(pat::MET::JetResUp);
