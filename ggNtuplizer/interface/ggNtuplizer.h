@@ -54,13 +54,13 @@ class ggNtuplizer : public edm::EDAnalyzer {
   //   virtual void endJob() {};
   
   void initTriggerFilters(const edm::Event&);
-  UInt_t matchSingleElectronTriggerFilters(double pt, double eta, double phi);
-  UInt_t matchDoubleElectronTriggerFilters(double pt, double eta, double phi);
-  UInt_t matchSinglePhotonTriggerFilters(double pt, double eta, double phi);
-  UInt_t matchDoublePhotonTriggerFilters(double pt, double eta, double phi);
-  UInt_t matchMuonTriggerFilters(double pt, double eta, double phi);
-  UInt_t matchJetTriggerFilters(double pt, double eta, double phi);
-  UInt_t matchL1TriggerFilters(double pt, double eta, double phi);
+  ULong64_t matchSingleElectronTriggerFilters(double pt, double eta, double phi);
+  ULong64_t matchDoubleElectronTriggerFilters(double pt, double eta, double phi);
+  ULong64_t matchSinglePhotonTriggerFilters(double pt, double eta, double phi);
+  ULong64_t matchDoublePhotonTriggerFilters(double pt, double eta, double phi);
+  ULong64_t matchMuonTriggerFilters(double pt, double eta, double phi);
+  ULong64_t matchJetTriggerFilters(double pt, double eta, double phi);
+  ULong64_t matchL1TriggerFilters(double pt, double eta, double phi);
   Double_t deltaPhi(Double_t phi1, Double_t phi2);
   Double_t deltaR(Double_t eta1, Double_t phi1, Double_t eta2, Double_t phi2);
   Double_t getMiniIsolation(edm::Handle<pat::PackedCandidateCollection> pfcands, const reco::Candidate* ptcl,  
@@ -78,6 +78,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   void branchesTaus       (TTree*);
   void branchesJets       (TTree*);
   void branchesMuonPairs  (TTree*);
+  void branchesZPairs     (TTree*);
 
   void fillGlobalEvent(const edm::Event&, const edm::EventSetup&);
   void fillGenInfo    (const edm::Event&);
@@ -91,6 +92,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   void fillTaus       (const edm::Event&);
   void fillJets       (const edm::Event&, const edm::EventSetup&);
   void fillMuonsPairs (const edm::Event&, const edm::EventSetup&, math::XYZPoint&, const reco::Vertex);
+  void fillZPairs     (const edm::Event&, const edm::EventSetup&, math::XYZPoint&, const reco::Vertex);
 
   void cleanupPhotons();
 
@@ -107,7 +109,9 @@ class ggNtuplizer : public edm::EDAnalyzer {
   bool dumpSubJets_;
   bool dumpSoftDrop_;
   bool dumpPDFSystWeight_;
+  bool dumpGenScaleSystWeights_;
   bool dumpMuonsPairs_;
+  bool dumpZPairs_;
 
   bool isAOD_;
   bool runHFElectrons_;
