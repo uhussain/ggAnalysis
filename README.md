@@ -27,7 +27,7 @@ cd RecoBTag/DeepFlavour/data/ <br>
 wget http://home.fnal.gov/~verzetti//DeepFlavour/training/DeepFlavourNoSL.json <br>
 cd $CMSSW_BASE/src <br>
 git clone https://github.com/cmkuo/HiggsAnalysis.git <br>
-git clone -b V08_00_26_07 https://github.com/cmkuo/ggAnalysis.git <br>
+git clone -b master git@github.com:uhussain/ggAnalysis.git <br>
 
 scram b -j 10 <br>
 
