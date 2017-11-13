@@ -1,0 +1,32 @@
+14c14,15
+< process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v7')
+---
+> #process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v7')
+> process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_Prompt_v16')
+19c20
+< process.MessageLogger.cerr.FwkReport.reportEvery = 1
+---
+> process.MessageLogger.cerr.FwkReport.reportEvery = 10000
+41d41
+<         #'/store/data/Run2016B/MET/MINIAOD/03Feb2017_ver2-v2/100000/028C28AD-47EE-E611-861A-0025905A48EC.root'
+42a43,44
+> #        '/store/data/Run2016E/SinglePhoton/MINIAOD/03Feb2017-v1/80000/369B41D2-4BEB-E611-B87A-0025905B85C0.root'
+>         #''
+91,92c93
+<     jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual']), 'None'),
+<     btagDiscriminators = ['deepFlavourJetTags:probudsg', 'deepFlavourJetTags:probb', 'deepFlavourJetTags:probc', 'deepFlavourJetTags:probbb', 'deepFlavourJetTags:probcc']
+---
+>     jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual']), 'None')
+128d128
+< #process.slimmedMETsMuEGClean.caloMET
+158d157
+< #process.ggNtuplizer.altpfMETLabel=cms.InputTag("slimmedMETs", "", "PAT")
+161a161,163
+> 
+> #process.load('RecoEgamma.PhotonIdentification.WorstIsolationProducer_cfi')
+> 
+167a170,171
+> 
+> 
+204a209
+>         #process.worstIsolationProducer*

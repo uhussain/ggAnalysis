@@ -1,0 +1,26 @@
+19c19
+< process.MessageLogger.cerr.FwkReport.reportEvery = 1
+---
+> process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+41d40
+<         #'/store/data/Run2016B/MET/MINIAOD/03Feb2017_ver2-v2/100000/028C28AD-47EE-E611-861A-0025905A48EC.root'
+42a42
+>         '/store/data/Run2016G/DoubleEG/MINIAOD/03Feb2017-v1/100000/002F14FF-D0EA-E611-952E-008CFA197AF4.root' 
+128d127
+< #process.slimmedMETsMuEGClean.caloMET
+158d156
+< #process.ggNtuplizer.altpfMETLabel=cms.InputTag("slimmedMETs", "", "PAT")
+192c190,198
+<     process.p = cms.Path(
+---
+> process.singleEleHLTFilter = cms.EDFilter("HLTHighLevel",
+>                                           eventSetupPathsKey = cms.string(''),
+>                                           TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+>                                           HLTPaths = cms.vstring('HLT_Ele27_WPLoose_Gsf_v*', 'HLT_Ele27_WPTight_Gsf_v*', 'HLT_Ele27_eta2p1_WPLoose_Gsf_v*', 'HLT_Ele27_eta2p1_WPTight_Gsf_v*', 'HLT_Ele32_eta2p1_WPTight_Gsf_v*', 'HLT_Ele35_WPLoose_Gsf_v*', 'HLT_Ele45_WPLoose_Gsf_v*'),
+>                                           andOr = cms.bool(True), # True = OR, False = AND
+>                                           throw = cms.bool(True) # Tolerate if triggers not available
+>                                           )
+> 
+> process.p = cms.Path(
+196a203
+>         process.singleEleHLTFilter*
