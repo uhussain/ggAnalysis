@@ -12,7 +12,7 @@ git fetch --tags btv-cmssw <br>
 git cms-merge-topic -u cms-btv-pog:BoostedDoubleSVTaggerV4-WithWeightFiles-v1_from-CMSSW_8_0_21 <br>
 git cms-merge-topic rafaellopesdesa:RegressionCheckNegEnergy <br>
 git cms-merge-topic cms-egamma:EGM_gain_v1 <br>
-git revert c83233f9fcdd901ba525ab90b1d9b20f4a892ffc
+git revert c83233f9fcdd901ba525ab90b1d9b20f4a892ffc <br>
 cd EgammaAnalysis/ElectronTools/data <br>
 git clone -b Moriond17_gainSwitch_unc https://github.com/ECALELFS/ScalesSmearings.git <br>
 cd $CMSSW_BASE/src <br>
