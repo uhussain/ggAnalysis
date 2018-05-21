@@ -1,11 +1,14 @@
 #multicrab
 
 dataset = {
-  'dataset1': '/MET/Run2016B-03Feb2017_ver2-v2/MINIAOD',
-  'dataset2': '/MET/Run2016C-03Feb2017-v1/MINIAOD',
-  'dataset3': '/MET/Run2016D-03Feb2017-v1/MINIAOD',
-  'dataset4':'/MET/Run2016G-03Feb2017-v1/MINIAOD',
-  'dataset5':'/MET/Run2016H-03Feb2017_ver2-v1/MINIAOD'
+  'dataset1': '/MET/Run2016B-07Aug17_ver1-v1/MINIAOD',
+  'dataset2': '/MET/Run2016B-07Aug17_ver2-v1/MINIAOD',
+  'dataset3': '/MET/Run2016C-07Aug17-v1/MINIAOD',
+  'dataset4':'/MET/Run2016D-07Aug17-v1/MINIAOD',
+  'dataset5':'/MET/Run2016E-07Aug17-v1/MINIAOD',
+  'dataset6':'/MET/Run2016F-07Aug17-v1/MINIAOD',
+  'dataset7':'/MET/Run2016G-07Aug17-v1/MINIAOD',
+  'dataset8':'/MET/Run2016H-07Aug17-v1/MINIAOD'
 }
 
 if __name__ == '__main__':
