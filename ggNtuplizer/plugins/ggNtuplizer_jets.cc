@@ -18,19 +18,20 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LorentzVector;
 
 // ak4 jets
 Int_t          nJet_;
+Int_t LeadingJet; //This is to keep track of leading Jet
 vector<float>  jetPt_;
-double j1etaWidth;
-double  j1phiWidth;
-double j1nPhotons;
-double j1nCHPions;
-double j1nMisc;
-vector<int> j1MiscPID;
+vector<double> jetetaWidth;
+vector<double>  jetphiWidth;
+vector<double> jetnPhotons;
+vector<double> jetnCHPions;
+vector<double> jetnMisc;
+vector<vector<int>> jetMiscPID;
 //Adding Variables for categorization of events in terms of tracks/charged hadrons
-vector<double>j1PFConsPt; 
-vector<double>j1PFConsEta;
-vector<double>j1PFConsPhi;
-vector<double>j1PFConsEt;
-vector<int>j1PFConsPID;
+vector<vector<double>>JetsPFConsPt; 
+vector<vector<double>>JetsPFConsEta;
+vector<vector<double>>JetsPFConsPhi;
+vector<vector<double>>JetsPFConsEt;
+vector<vector<int>>JetsPFConsPID;
 
 vector<float>  jetEn_;
 vector<float>  jetEta_;
@@ -176,17 +177,17 @@ vector< vector<float> > AK8puppiSDSJCSV_ ;
 void ggNtuplizer::branchesJets(TTree* tree) {
   
   tree->Branch("nJet",            &nJet_);
-  tree->Branch("j1etaWidth", &j1etaWidth);
-  tree->Branch("j1phiWidth", &j1phiWidth);
-  tree->Branch("j1nPhotons",&j1nPhotons);                                                                
-  tree->Branch("j1nCHPions",&j1nCHPions);                              
-  tree->Branch("j1nMisc",&j1nMisc);                                 
-  tree->Branch("j1MiscPID",&j1MiscPID);
-  tree->Branch("j1PFConsPt",&j1PFConsPt); 
-  tree->Branch("j1PFConsEta",&j1PFConsEta);
-  tree->Branch("j1PFConsPhi",&j1PFConsPhi);
-  tree->Branch("j1PFConsEt",&j1PFConsEt); 
-  tree->Branch("j1PFConsPID",&j1PFConsPID);
+  tree->Branch("jetetaWidth", &jetetaWidth);
+  tree->Branch("jetphiWidth", &jetphiWidth);
+  tree->Branch("jetnPhotons",&jetnPhotons);                                                                
+  tree->Branch("jetnCHPions",&jetnCHPions);                              
+  tree->Branch("jetnMisc",&jetnMisc);                                 
+  tree->Branch("jetMiscPID",&jetMiscPID);
+  tree->Branch("JetsPFConsPt",&JetsPFConsPt); 
+  tree->Branch("JetsPFConsEta",&JetsPFConsEta);
+  tree->Branch("JetsPFConsPhi",&JetsPFConsPhi);
+  tree->Branch("JetsPFConsEt",&JetsPFConsEt); 
+  tree->Branch("JetsPFConsPID",&JetsPFConsPID);
   tree->Branch("jetPt",           &jetPt_);
   tree->Branch("jetEn",           &jetEn_);
   tree->Branch("jetEta",          &jetEta_);
@@ -337,21 +338,22 @@ void ggNtuplizer::branchesJets(TTree* tree) {
 void ggNtuplizer::fillJets(const edm::Event& e, const edm::EventSetup& es) {
 
   // cleanup from previous execution
-  //j1etaWidth_.clear();
-  //j1phiWidth_.clear();
-  j1etaWidth = 0;
-  j1phiWidth = 0;
-  j1nPhotons = 0;
-  j1nCHPions = 0;
-  j1nMisc = 0;
+  //jetetaWidth_.clear();
+  //jetphiWidth_.clear();
+  jetetaWidth.clear();
+  jetphiWidth.clear();
+  jetnPhotons.clear();
+  jetnCHPions.clear();
+  jetnMisc.clear();
+  jetMiscPID.clear();
+  
+  //vector of vectors saving jetCons info about each Jet
+  JetsPFConsPt.clear();
+  JetsPFConsEta.clear();
+  JetsPFConsPhi.clear();
+  JetsPFConsEt.clear();
+  JetsPFConsPID.clear();
 
-
-  j1PFConsPt.clear();
-  j1PFConsEta.clear();
-  j1PFConsPhi.clear();
-  j1PFConsEt.clear();
-  j1PFConsPID.clear();
-  j1MiscPID.clear();
   jetPt_                                  .clear();
   jetEn_                                  .clear();
   jetEta_                                 .clear();
@@ -494,6 +496,7 @@ void ggNtuplizer::fillJets(const edm::Event& e, const edm::EventSetup& es) {
   AK8puppiSDSJCSV_ .clear();
 
   nJet_ = 0;
+  LeadingJet=0;
 
   edm::Handle<edm::View<pat::Jet> > jetHandle;
   e.getByToken(jetsAK4Label_, jetHandle);
@@ -529,44 +532,63 @@ void ggNtuplizer::fillJets(const edm::Event& e, const edm::EventSetup& es) {
   AK8jecUnc = new JetCorrectionUncertainty(AK8JetCorPar);
   
   //This Vector will allow us to sort the daughters of leading jet by PT
-  std::vector<std::pair<double,const reco::Candidate*>> j1Daughters;//pdgId = 211 
+  std::vector<std::pair<double,const reco::Candidate*>> jetDaughters;//pdgId = 211
+  vector<double>jetPFConsPt;
+  vector<double>jetPFConsEta;
+  vector<double>jetPFConsPhi;
+  vector<double>jetPFConsEt;
+  vector<int>jetPFConsPID;
   //start jets Lvdp
   for (edm::View<pat::Jet>::const_iterator iJet = jetHandle->begin(); iJet != jetHandle->end(); ++iJet) {
-    
+    //Clear these vectors from previous jet
+    jetDaughters.clear();
+    jetPFConsPt.clear();
+    jetPFConsEta.clear();
+    jetPFConsPhi.clear();
+    jetPFConsEt.clear();
+    jetPFConsPID.clear();
+
     if (iJet->pt() < 20) continue;
     //This condition makes sure we only calculate the leading Jet section once
-    if(nJet_==0){
-    const pat::Jet &j1 = jetHandle->front();
-    JetWidthCalculator jwc(j1);
-    j1etaWidth = jwc.getEtaWidth();
-    j1phiWidth = jwc.getPhiWidth();
-    j1nPhotons = jwc.getnPhotons();
-    j1nCHPions = jwc.getnCHPions();
-    j1nMisc = jwc.getMiscParticles();
-    j1MiscPID = jwc.getPID();
+    //if(nJet_==0){//We are doing this for all jets now
+    //const pat::Jet &j1 = jetHandle->front();
+    JetWidthCalculator jwc(*iJet);
+    jetetaWidth.push_back(jwc.getEtaWidth());
+    jetphiWidth.push_back(jwc.getPhiWidth());
+    jetnPhotons.push_back(jwc.getnPhotons());
+    jetnCHPions.push_back(jwc.getnCHPions());
+    jetnMisc.push_back(jwc.getMiscParticles());
+    jetMiscPID.push_back(jwc.getPID());
     //We are only interested in the Constituents of the Leading Jet (Pencil Jet for our signal)
-    double daughterCands = j1.numberOfDaughters();
+    double daughterCands = iJet->numberOfDaughters();
     for(uint32_t i = 0; i < daughterCands;  i++) {
-      const reco::Candidate *dauCand = j1.daughter(i);
+      const reco::Candidate *dauCand = iJet->daughter(i);
       double dauCandPt = dauCand->pt();
-      j1Daughters.push_back({dauCandPt,dauCand});}
-    //sort these j1Daughters in descending order by Pt
-    std::sort(j1Daughters.begin(),j1Daughters.end(),[](const auto& p1, const auto& p2){return p1.first>p2.first;});
-    //std::cout<<"j1DaughtersSize: "<<j1Daughters.size()<<std::endl;
-    for(uint32_t i = 0; i < j1Daughters.size();  i++) {
-      const reco::Candidate *pfCand = j1Daughters.at(i).second;
-      //In our signal, we are mostly interested in the leading 3 highPT daughters but we save info about all in the j1PFCons__ vectors
+      jetDaughters.push_back({dauCandPt,dauCand});}
+    //sort these jetDaughters in descending order by Pt
+    std::sort(jetDaughters.begin(),jetDaughters.end(),[](const auto& p1, const auto& p2){return p1.first>p2.first;});
+    //std::cout<<"jetDaughtersSize: "<<jetDaughters.size()<<std::endl;
+    for(uint32_t i = 0; i < jetDaughters.size();  i++) {
+      const reco::Candidate *pfCand = jetDaughters.at(i).second;
+      //In our signal, we are mostly interested in the leading 3 highPT daughters but we save info about all in the jetPFCons__ vectors
       //if(i<3){
         //std::cout<<"("<<i+1<<") Pt: "<<pfCand->pt()<<" PdgID: "<<pfCand->pdgId()<<std::endl;}
-      j1PFConsPt.push_back(pfCand->pt());
-      j1PFConsEta.push_back(pfCand->eta());
-      j1PFConsPhi.push_back(pfCand->phi());
-      j1PFConsEt.push_back(pfCand->et()); 
-      j1PFConsPID.push_back(pfCand->pdgId());
+      jetPFConsPt.push_back(pfCand->pt());
+      jetPFConsEta.push_back(pfCand->eta());
+      jetPFConsPhi.push_back(pfCand->phi());
+      jetPFConsEt.push_back(pfCand->et()); 
+      jetPFConsPID.push_back(pfCand->pdgId());
       //if(abs(pfCand->charge())==1 && abs(pfCand->pdgId())>40 && abs(pfCand->pdgId())!=211){
         //std::cout<<"(Not a ChargedPion) Pt: "<<pfCand->pt()<<" PdgID: "<<pfCand->pdgId()<<std::endl;}
     }
-    }//if condition closing for the leading jet
+    //Fill info about constituents of each jet by pushing vectors like "jetPFConsPt" into a vector for all Jets
+    JetsPFConsPt.push_back(jetPFConsPt);
+    JetsPFConsEta.push_back(jetPFConsEta);
+    JetsPFConsPhi.push_back(jetPFConsPhi);
+    JetsPFConsEt.push_back(jetPFConsEt);
+    JetsPFConsPID.push_back(jetPFConsPID);
+
+    //}//if condition closing for the leading jet
     jetPt_.push_back(    iJet->pt());
     jetEn_.push_back(    iJet->energy());
     jetEta_.push_back(   iJet->eta());
@@ -762,7 +784,7 @@ void ggNtuplizer::fillJets(const edm::Event& e, const edm::EventSetup& es) {
     nJet_++;
   }
   
-  //std::cout<<"j1etaWidth: "<<j1etaWidth<<std::endl;
+  //std::cout<<"jetetaWidth: "<<jetetaWidth<<std::endl;
   if (dumpSubJets_) {
     edm::Handle<edm::View<pat::Jet> > jetsAK8;
     e.getByToken(jetsAK8Label_, jetsAK8);
