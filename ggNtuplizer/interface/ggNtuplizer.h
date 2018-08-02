@@ -1,9 +1,11 @@
 #ifndef ggNtuplizer_h
 #define ggNtuplizer_h
 
-#include <vector>
-#include <cstdint>
 #include "TTree.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -26,7 +28,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
-#include "EgammaAnalysis/ElectronTools/interface/EnergyScaleCorrection_class.h"
+//#include "EgammaAnalysis/ElectronTools/interface/EnergyScaleCorrection_class.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/CiCPhotonID.h"
 #include "JetMETCorrections/Modules/interface/JetResolution.h"
 //#include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
@@ -45,9 +47,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   ~ggNtuplizer();
   
   //   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  Vector2D vector2(const math::XYZTLorentzVector& vec) {
-        return Vector2D(vec.px(), vec.py());
-  }
+  
  private:
   
   //   virtual void beginJob() {};
@@ -59,6 +59,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   ULong64_t matchDoubleElectronTriggerFilters(double pt, double eta, double phi);
   ULong64_t matchSinglePhotonTriggerFilters(double pt, double eta, double phi);
   ULong64_t matchDoublePhotonTriggerFilters(double pt, double eta, double phi);
+  ULong64_t matchTriplePhotonTriggerFilters(double pt, double eta, double phi);
   ULong64_t matchMuonTriggerFilters(double pt, double eta, double phi);
   ULong64_t matchJetTriggerFilters(double pt, double eta, double phi);
   ULong64_t matchL1TriggerFilters(double pt, double eta, double phi);
@@ -78,9 +79,6 @@ class ggNtuplizer : public edm::EDAnalyzer {
   void branchesMuons      (TTree*);
   void branchesTaus       (TTree*);
   void branchesJets       (TTree*);
-  void branchesMuonPairs  (TTree*);
-  void branchesZPairs     (TTree*);
-  void branchesIsoTracks  (TTree*);
 
   void fillGlobalEvent(const edm::Event&, const edm::EventSetup&);
   void fillGenInfo    (const edm::Event&);
@@ -93,9 +91,6 @@ class ggNtuplizer : public edm::EDAnalyzer {
   void fillMuons      (const edm::Event&, math::XYZPoint&, const reco::Vertex);
   void fillTaus       (const edm::Event&);
   void fillJets       (const edm::Event&, const edm::EventSetup&);
-  void fillMuonsPairs (const edm::Event&, const edm::EventSetup&, math::XYZPoint&, const reco::Vertex);
-  void fillZPairs     (const edm::Event&, const edm::EventSetup&, math::XYZPoint&, const reco::Vertex);
-  void fillIsoTracks  (const edm::Event&);
 
   void cleanupPhotons();
 
@@ -112,10 +107,6 @@ class ggNtuplizer : public edm::EDAnalyzer {
   bool dumpSubJets_;
   bool dumpSoftDrop_;
   bool dumpPDFSystWeight_;
-  bool dumpGenScaleSystWeights_;
-  bool dumpMuonsPairs_;
-  bool dumpZPairs_;
-  bool dumpIsoTracks_;
 
   bool isAOD_;
   bool runHFElectrons_;
@@ -124,16 +115,6 @@ class ggNtuplizer : public edm::EDAnalyzer {
 
   double trgFilterDeltaPtCut_;
   double trgFilterDeltaRCut_;
-  
-  double isoPtLeptoncut_;
-  double isoPtcut_;
-  double isoPtcutnoIso_;
-  double isoDRcut_;
-  double isoIsoDZcut_;
-  vector<double >isoMiniIsoParams_;
-  double isoChIsocut_;
-  double isoLepOverlapDR_;
-  double isoOverlapPtMin_;
 
   edm::EDGetTokenT<reco::VertexCollection>         vtxLabel_;
   edm::EDGetTokenT<reco::VertexCollection>         vtxBSLabel_;
@@ -188,19 +169,15 @@ class ggNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<edm::ValueMap<float> > phoChargedIsolationToken_CITK_;
   edm::EDGetTokenT<edm::ValueMap<float> > phoNeutralHadronIsolationToken_CITK_;
   edm::EDGetTokenT<edm::ValueMap<float> > phoPhotonIsolationToken_CITK_;
-  edm::EDGetTokenT<edm::ValueMap<float> > phoChargedIsolationToken_PUPPI_;
-  edm::EDGetTokenT<edm::ValueMap<float> > phoNeutralHadronIsolationToken_PUPPI_;
-  edm::EDGetTokenT<edm::ValueMap<float> > phoPhotonIsolationToken_PUPPI_;
 
   // elecontr ID decisions objects
   edm::EDGetTokenT<edm::ValueMap<bool> >  eleVetoIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> >  eleLooseIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> >  eleMediumIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> >  eleTightIdMapToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> >  eleHLTIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> >  eleHEEPIdMapToken_;
-  edm::EDGetTokenT<edm::ValueMap<float> > eleMVAValuesMapToken_;
-  edm::EDGetTokenT<edm::ValueMap<float> > eleMVAHZZValuesMapToken_;
+  edm::EDGetTokenT<edm::ValueMap<float> > eleMVAIsoValuesMapToken_;
+  edm::EDGetTokenT<edm::ValueMap<float> > eleMVANoIsoValuesMapToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > elePFClusEcalIsoToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > elePFClusHcalIsoToken_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidateCollection_;
@@ -216,7 +193,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   TH1F    *hSumGenWeight_;
 
   CiCPhotonID                 *cicPhotonId_;
-  EnergyScaleCorrection_class *egmScaler_;
+  //EnergyScaleCorrection_class *egmScaler_;
 
   JME::JetResolution            jetResolution_;
   JME::JetResolutionScaleFactor jetResolutionSF_;
@@ -224,9 +201,9 @@ class ggNtuplizer : public edm::EDAnalyzer {
   JME::JetResolutionScaleFactor AK8jetResolutionSF_;
 
   //PFJetIDSelectionFunctor pfLooseId_;
-  boost::shared_ptr<FactorizedJetCorrector> jecAK8_;
-  boost::shared_ptr<FactorizedJetCorrector> jecAK8pSD_;
-  std::vector<std::string> jecAK8PayloadNames_;
+  //boost::shared_ptr<FactorizedJetCorrector> jecAK8_;
+  //boost::shared_ptr<FactorizedJetCorrector> jecAK8pSD_;
+  //std::vector<std::string> jecAK8PayloadNames_;
   HLTPrescaleProvider hltPrescaleProvider_;
 };
 

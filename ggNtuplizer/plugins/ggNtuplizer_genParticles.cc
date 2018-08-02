@@ -9,7 +9,8 @@ float            pthat_;
 float            processID_;
 float            genWeight_;
 float            genHT_;
-float            LHephoET_;
+float            genPho1_;
+float            genPho2_;
 TString          EventTag_;
 float            pdfWeight_;     
 vector<float>    pdfSystWeight_;
@@ -18,19 +19,6 @@ Int_t            nPUInfo_;
 vector<int>      nPU_;
 vector<int>      puBX_;
 vector<float>    puTrue_;
-
-Int_t            nlheWeights_;
-vector<float>    lheNormalizedWeights_;
-float            genWeight_QCDscale_muR1_muF1_;
-float            genWeight_QCDscale_muR1_muF2_;
-float            genWeight_QCDscale_muR1_muF0p5_;
-float            genWeight_QCDscale_muR2_muF1_;
-float            genWeight_QCDscale_muR2_muF2_;
-float            genWeight_QCDscale_muR2_muF0p5_;
-float            genWeight_QCDscale_muR0p5_muF1_;
-float            genWeight_QCDscale_muR0p5_muF2_;
-float            genWeight_QCDscale_muR0p5_muF0p5_;
-vector<string>   lheWeightIDs_;
 
 Int_t            nMC_;
 vector<int>      mcPID;
@@ -127,7 +115,8 @@ void ggNtuplizer::branchesGenInfo(TTree* tree, edm::Service<TFileService> &fs) {
   tree->Branch("processID",     &processID_);
   tree->Branch("genWeight",     &genWeight_);
   tree->Branch("genHT",         &genHT_);
-  tree->Branch("LHephoET",         &LHephoET_);
+  tree->Branch("genPho1",       &genPho1_);
+  tree->Branch("genPho2",       &genPho2_);
   if (dumpPDFSystWeight_) {
     tree->Branch("pdfWeight",     &pdfWeight_);
     tree->Branch("pdfSystWeight", &pdfSystWeight_);
@@ -139,22 +128,10 @@ void ggNtuplizer::branchesGenInfo(TTree* tree, edm::Service<TFileService> &fs) {
   tree->Branch("puBX",          &puBX_);
   tree->Branch("puTrue",        &puTrue_);
 
-  tree->Branch("nlheWeights",  &nlheWeights_);
-  tree->Branch("lheNormalizedWeights", &lheNormalizedWeights_);
-  tree->Branch("genWeight_QCDscale_muR1_muF1",     &genWeight_QCDscale_muR1_muF1_);
-  tree->Branch("genWeight_QCDscale_muR1_muF2",     &genWeight_QCDscale_muR1_muF2_);
-  tree->Branch("genWeight_QCDscale_muR1_muF0p5",   &genWeight_QCDscale_muR1_muF0p5_);
-  tree->Branch("genWeight_QCDscale_muR2_muF1",     &genWeight_QCDscale_muR2_muF1_);
-  tree->Branch("genWeight_QCDscale_muR2_muF2",     &genWeight_QCDscale_muR2_muF2_);
-  tree->Branch("genWeight_QCDscale_muR2_muF0p5",   &genWeight_QCDscale_muR2_muF0p5_);
-  tree->Branch("genWeight_QCDscale_muR0p5_muF1",   &genWeight_QCDscale_muR0p5_muF1_);
-  tree->Branch("genWeight_QCDscale_muR0p5_muF2",   &genWeight_QCDscale_muR0p5_muF2_);
-  tree->Branch("genWeight_QCDscale_muR0p5_muF0p5", &genWeight_QCDscale_muR0p5_muF0p5_);
-  tree->Branch("lheWeightIDs", &lheWeightIDs_);
-
   hPU_        = fs->make<TH1F>("hPU",        "number of pileup",      200,  0, 200);
   hPUTrue_    = fs->make<TH1F>("hPUTrue",    "number of true pilepu", 1000, 0, 200);
   hGenWeight_ = fs->make<TH1F>("hGenWeight", "Gen weights",           2,    0, 2);
+  hSumGenWeight_ = fs->make<TH1F>("hSumGenWeight", "Sum of Gen weights",1,  0, 1);
 }
 
 void ggNtuplizer::branchesGenPart(TTree* tree) {
@@ -193,7 +170,8 @@ void ggNtuplizer::fillGenInfo(const edm::Event& e) {
   processID_ = -99;
   genWeight_ = -99;
   genHT_     = -99;
-  LHephoET_     = -99;
+  genPho1_   = -99;
+  genPho2_   = -99;
   nPUInfo_   = 0;
   pdfWeight_ = -99;
   EventTag_  = "";
@@ -202,18 +180,6 @@ void ggNtuplizer::fillGenInfo(const edm::Event& e) {
   nPU_          .clear();
   puBX_         .clear();
   puTrue_       .clear();
-  nlheWeights_ = 0;
-  lheNormalizedWeights_.clear();
-  genWeight_QCDscale_muR1_muF1_ = -99;
-  genWeight_QCDscale_muR1_muF2_ = -99;
-  genWeight_QCDscale_muR1_muF0p5_ = -99;
-  genWeight_QCDscale_muR2_muF1_ = -99;
-  genWeight_QCDscale_muR2_muF2_ = -99;
-  genWeight_QCDscale_muR2_muF0p5_ = -99;
-  genWeight_QCDscale_muR0p5_muF1_ = -99;
-  genWeight_QCDscale_muR0p5_muF2_ = -99;
-  genWeight_QCDscale_muR0p5_muF0p5_ = -99;
-  lheWeightIDs_.clear();
 
   edm::Handle<GenEventInfoProduct> genEventInfoHandle;
   e.getByToken(generatorLabel_, genEventInfoHandle);
@@ -236,6 +202,8 @@ void ggNtuplizer::fillGenInfo(const edm::Event& e) {
     genWeight_ = genEventInfoHandle->weight();
     if (genWeight_ >= 0) hGenWeight_->Fill(0.5);    
     else hGenWeight_->Fill(1.5);
+    if (abs(genWeight_)>1) hSumGenWeight_->Fill(0.5,genWeight_/abs(genWeight_));
+    else hSumGenWeight_->Fill(0.5,genWeight_);
   } else
     edm::LogWarning("ggNtuplizer") << "no GenEventInfoProduct in event";
   
@@ -243,21 +211,28 @@ void ggNtuplizer::fillGenInfo(const edm::Event& e) {
   edm::Handle<LHEEventProduct> lheEventProduct;
   e.getByToken(lheEventLabel_, lheEventProduct);
   
-  double lheHt = 0.;
-  double lhephoEt = 0.;
+  double lheHt   = 0.;
+  double lhePho1 = 0.;
+  double lhePho2 = 0.;
   if (lheEventProduct.isValid()){
     const lhef::HEPEUP& lheEvent = lheEventProduct->hepeup();
     std::vector<lhef::HEPEUP::FiveVector> lheParticles = lheEvent.PUP;
     size_t numParticles = lheParticles.size();
+    int nMCPho = 0;
     for ( size_t idxParticle = 0; idxParticle < numParticles; ++idxParticle ) {
       int absPdgId = TMath::Abs(lheEvent.IDUP[idxParticle]);
       int status = lheEvent.ISTUP[idxParticle];
-      if ( status == 1 && ((absPdgId >= 1 && absPdgId <= 6) || absPdgId == 21) ) { // quarks and gluons
+      if (status == 1 && ((absPdgId >= 1 && absPdgId <= 6) || absPdgId == 21) ) { // quarks and gluons
 	lheHt += TMath::Sqrt(TMath::Power(lheParticles[idxParticle][0], 2.) + TMath::Power(lheParticles[idxParticle][1], 2.)); // first entry is px, second py
       } 
-      if ( status == 1 && ( absPdgId == 22) ) { // photons
-  lhephoEt += TMath::Sqrt(TMath::Power(lheParticles[idxParticle][0], 2.) + TMath::Power(lheParticles[idxParticle][1], 2.)); // first entry is px, second py
-      } 
+      if (status == 1 && absPdgId == 22 && nMCPho == 0) { // first photon
+	lhePho1 = TMath::Sqrt(TMath::Power(lheParticles[idxParticle][0], 2.) + TMath::Power(lheParticles[idxParticle][1], 2.));
+	nMCPho++;
+      }
+      if (status == 1 && absPdgId == 22 && nMCPho == 1) { // first photon
+	lhePho2 = TMath::Sqrt(TMath::Power(lheParticles[idxParticle][0], 2.) + TMath::Power(lheParticles[idxParticle][1], 2.));
+	nMCPho++;
+      }
 
       typedef std::vector<std::string>::const_iterator comments_const_iterator;
 
@@ -280,27 +255,11 @@ void ggNtuplizer::fillGenInfo(const edm::Event& e) {
 	pdfSystWeight_.push_back(lheEventProduct->weights()[i].wgt);
       }
     }
-    
-    nlheWeights_ = lheEventProduct->weights().size();
-    for (unsigned i = 0; i < lheEventProduct->weights().size(); ++i) {
-      lheNormalizedWeights_.push_back(lheEventProduct->weights()[i].wgt/lheEventProduct->originalXWGTUP());
-      lheWeightIDs_.push_back(lheEventProduct->weights()[i].id);
-    }
-    if(nlheWeights_ >= 9){
-      genWeight_QCDscale_muR1_muF1_ = lheEventProduct->weights()[0].wgt/lheEventProduct->originalXWGTUP();
-      genWeight_QCDscale_muR1_muF2_ = lheEventProduct->weights()[1].wgt/lheEventProduct->originalXWGTUP();
-      genWeight_QCDscale_muR1_muF0p5_ = lheEventProduct->weights()[2].wgt/lheEventProduct->originalXWGTUP();
-      genWeight_QCDscale_muR2_muF1_ = lheEventProduct->weights()[3].wgt/lheEventProduct->originalXWGTUP();
-      genWeight_QCDscale_muR2_muF2_ = lheEventProduct->weights()[4].wgt/lheEventProduct->originalXWGTUP();
-      genWeight_QCDscale_muR2_muF0p5_ = lheEventProduct->weights()[5].wgt/lheEventProduct->originalXWGTUP();
-      genWeight_QCDscale_muR0p5_muF1_ = lheEventProduct->weights()[6].wgt/lheEventProduct->originalXWGTUP();
-      genWeight_QCDscale_muR0p5_muF2_ = lheEventProduct->weights()[7].wgt/lheEventProduct->originalXWGTUP();
-      genWeight_QCDscale_muR0p5_muF0p5_ = lheEventProduct->weights()[8].wgt/lheEventProduct->originalXWGTUP();
-    }
   }
-  genHT_=lheHt;  
-  LHephoET_ = lhephoEt;
-  
+  genHT_   = lheHt;  
+  genPho1_ = lhePho1;  
+  genPho2_ = lhePho2;  
+
   edm::Handle<vector<PileupSummaryInfo> > genPileupHandle;
   e.getByToken(puCollection_, genPileupHandle);
   

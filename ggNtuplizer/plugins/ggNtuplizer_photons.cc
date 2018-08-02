@@ -4,13 +4,10 @@
 #include "ggAnalysis/ggNtuplizer/interface/GEDPhoIDTools.h"
 #include "ggAnalysis/ggNtuplizer/interface/ggNtuplizer.h"
 
-#include "TRandom3.h"
-
 using namespace std;
 
 Int_t          nPho_;
 vector<float>  phoE_;
-vector<float>  phoSigmaE_;
 vector<float>  phoEt_;
 vector<float>  phoEta_;
 vector<float>  phoPhi_;
@@ -50,7 +47,6 @@ vector<float>  phoR9Full5x5_;
 vector<float>  phoPFChIso_;
 vector<float>  phoPFPhoIso_;
 vector<float>  phoPFNeuIso_;
-vector<float>  phoPFRandConeChIso_;
 vector<float>  phoPFChWorstIso_;
 vector<float>  phoPFChIsoFrix1_;
 vector<float>  phoPFChIsoFrix2_;
@@ -79,14 +75,12 @@ vector<float>  phoPFNeuIsoFrix8_;
 vector<float>  phoCITKChIso_;
 vector<float>  phoCITKPhoIso_;
 vector<float>  phoCITKNeuIso_;
-//vector<float>  phoPUPPIChIso_;
-//vector<float>  phoPUPPIPhoIso_;
-//vector<float>  phoPUPPINeuIso_;
 //vector<float>  phoSeedBCE_;
 //vector<float>  phoSeedBCEta_;
 vector<float>  phoIDMVA_;
 vector<ULong64_t> phoFiredSingleTrgs_;
 vector<ULong64_t> phoFiredDoubleTrgs_;
+vector<ULong64_t> phoFiredTripleTrgs_;
 vector<ULong64_t> phoFiredL1Trgs_;
 //vector<float>  phoEcalRecHitSumEtConeDR03_;
 //vector<float>  phohcalDepth1TowerSumEtConeDR03_;
@@ -127,64 +121,10 @@ bool isInFootprint(const T& thefootprint, const U& theCandidate) {
   return false;
 }
 
-
-TRandom3 generator = TRandom3(0);
-
-double randomConeIso(double eta, edm::Handle<std::vector<pat::PackedCandidate>>& pfcands, const reco::Vertex& vertex,
-					 edm::Handle<edm::View<pat::Electron>>& electrons, edm::Handle<edm::View<pat::Muon>>& muons,
-					 edm::Handle<edm::View<pat::Jet>>& jets, edm::Handle<edm::View<pat::Photon>>& photons){
-	
-	// First, find random phi direction which does not overlap with jets, photons or leptons
-	bool overlap   = true;
-	int attempt    = 0;
-	double randomPhi;
-
-	while(overlap and attempt<40){
-		randomPhi = generator.Uniform(-TMath::Pi(),TMath::Pi());
-		overlap = false;
-		for (edm::View<pat::Photon>::const_iterator p = photons->begin(); p != photons->end(); ++p) {
-			if(p->pt() > 10 and deltaR(eta, randomPhi, p->eta(), p->phi()) < 0.6) overlap = true;
-		}
-		for (edm::View<pat::Electron>::const_iterator p = electrons->begin(); p != electrons->end(); ++p) {
-			if(p->pt() > 10 and deltaR(eta, randomPhi, p->eta(), p->phi()) < 0.6) overlap = true;
-		}
-		for (edm::View<pat::Muon>::const_iterator p = muons->begin(); p != muons->end(); ++p) {
-			if(p->pt() > 10 and deltaR(eta, randomPhi, p->eta(), p->phi()) < 0.6) overlap = true;
-		}
-		for (edm::View<pat::Jet>::const_iterator p = jets->begin(); p != jets->end(); ++p) {
-			if(p->pt() > 20 and deltaR(eta, randomPhi, p->eta(), p->phi()) < 0.6) overlap = true;
-		}
-		// for(auto& p : *electrons) if(p.pt() > 10 and deltaR(eta, randomPhi, p.eta(), p.phi()) < 0.6) overlap = true;
-		// for(auto& p : *muons)     if(p.pt() > 10 and deltaR(eta, randomPhi, p.eta(), p.phi()) < 0.6) overlap = true;
-		// for(auto& p : *jets)      if(p.pt() > 20 and deltaR(eta, randomPhi, p.eta(), p.phi()) < 0.6) overlap = true;
-		// for(auto& p : *photons)   if(p.pt() > 10 and deltaR(eta, randomPhi, p.eta(), p.phi()) < 0.6) overlap = true;
-		++attempt;
-	}
-	if(overlap) return -1.;
-
-	// Calculate chargedIsolation
-	float chargedIsoSum = 0;
-	for(auto& iCand : *pfcands){
-
-		if(deltaR(eta, randomPhi, iCand.eta(), iCand.phi()) > 0.3) continue;
-		if(abs(iCand.pdgId()) != 211) continue;
-
-		float dxy = iCand.pseudoTrack().dxy(vertex.position());
-		float dz  = iCand.pseudoTrack().dz(vertex.position());
-		if(fabs(dxy) > 0.1) continue;
-		if(fabs(dz) > 0.2)  continue;
-
-		chargedIsoSum += iCand.pt();
-	}
-	return chargedIsoSum;
-}
-
-
 void ggNtuplizer::branchesPhotons(TTree* tree) {
   
   tree->Branch("nPho",                    &nPho_);
   tree->Branch("phoE",                    &phoE_);
-  tree->Branch("phoSigmaE",               &phoSigmaE_);
   tree->Branch("phoEt",                   &phoEt_);
   tree->Branch("phoEta",                  &phoEta_);
   tree->Branch("phoPhi",                  &phoPhi_);
@@ -227,7 +167,6 @@ void ggNtuplizer::branchesPhotons(TTree* tree) {
   tree->Branch("phoPFPhoIso",             &phoPFPhoIso_);
   tree->Branch("phoPFNeuIso",             &phoPFNeuIso_);
   tree->Branch("phoPFChWorstIso",         &phoPFChWorstIso_);
-  tree->Branch("phoPFRandConeChIso",      &phoPFRandConeChIso_);
   /*
   tree->Branch("phoPFChIsoFrix1",         &phoPFChIsoFrix1_);
   tree->Branch("phoPFChIsoFrix2",         &phoPFChIsoFrix2_);
@@ -257,9 +196,6 @@ void ggNtuplizer::branchesPhotons(TTree* tree) {
   tree->Branch("phoCITKChIso",            &phoCITKChIso_);
   tree->Branch("phoCITKPhoIso",           &phoCITKPhoIso_);
   tree->Branch("phoCITKNeuIso",           &phoCITKNeuIso_);
-  //tree->Branch("phoPUPPIChIso",           &phoPUPPIChIso_);
-  //tree->Branch("phoPUPPIPhoIso",          &phoPUPPIPhoIso_);
-  //tree->Branch("phoPUPPINeuIso",          &phoPUPPINeuIso_);
   //tree->Branch("phoEcalRecHitSumEtConeDR03",      &phoEcalRecHitSumEtConeDR03_);
   //tree->Branch("phohcalDepth1TowerSumEtConeDR03", &phohcalDepth1TowerSumEtConeDR03_);
   //tree->Branch("phohcalDepth2TowerSumEtConeDR03", &phohcalDepth2TowerSumEtConeDR03_);
@@ -269,6 +205,7 @@ void ggNtuplizer::branchesPhotons(TTree* tree) {
   tree->Branch("phoIDMVA",                        &phoIDMVA_);
   tree->Branch("phoFiredSingleTrgs",              &phoFiredSingleTrgs_);
   tree->Branch("phoFiredDoubleTrgs",              &phoFiredDoubleTrgs_);
+  tree->Branch("phoFiredTripleTrgs",              &phoFiredTripleTrgs_);
   tree->Branch("phoFiredL1Trgs",                  &phoFiredL1Trgs_);
   tree->Branch("phoSeedTime",                     &phoSeedTime_);
   tree->Branch("phoSeedEnergy",                   &phoSeedEnergy_);
@@ -299,7 +236,6 @@ void ggNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es) {
   
   // cleanup from previous execution
   phoE_                 .clear();
-  phoSigmaE_            .clear();
   phoEt_                .clear();
   phoEta_               .clear();
   phoPhi_               .clear();
@@ -340,7 +276,6 @@ void ggNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es) {
   phoPFPhoIso_          .clear();
   phoPFNeuIso_          .clear();
   phoPFChWorstIso_      .clear();
-  phoPFRandConeChIso_   .clear();
   phoPFChIsoFrix1_      .clear();
   phoPFChIsoFrix2_      .clear();
   phoPFChIsoFrix3_      .clear();
@@ -368,14 +303,12 @@ void ggNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es) {
   phoCITKChIso_         .clear();
   phoCITKPhoIso_        .clear();
   phoCITKNeuIso_        .clear();
-  //phoPUPPIChIso_        .clear();
-  //phoPUPPIPhoIso_       .clear();
-  //phoPUPPINeuIso_       .clear();
   //phoSeedBCE_           .clear();
   //phoSeedBCEta_         .clear();
   phoIDMVA_             .clear();
   phoFiredSingleTrgs_   .clear();
   phoFiredDoubleTrgs_   .clear();
+  phoFiredTripleTrgs_   .clear();
   phoFiredL1Trgs_       .clear();
   phoxtalBits_          .clear();
   phoSeedTime_          .clear();
@@ -455,20 +388,12 @@ void ggNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es) {
   e.getByToken(phoWorstChargedIsolationToken_,  phoWorstChargedIsolationMap);
 
   // Get the isolation maps for CITK
-  edm::Handle<edm::ValueMap<float> > phoChargedIsolationMap_CITK;
-  e.getByToken(phoChargedIsolationToken_CITK_, phoChargedIsolationMap_CITK);
-  edm::Handle<edm::ValueMap<float> > phoPhotonIsolationMap_CITK;
-  e.getByToken(phoPhotonIsolationToken_CITK_, phoPhotonIsolationMap_CITK);
-  edm::Handle<edm::ValueMap<float> > phoNeutralHadronIsolationMap_CITK;
-  e.getByToken(phoNeutralHadronIsolationToken_CITK_, phoNeutralHadronIsolationMap_CITK);
-
-  // Get the isolation maps for PUPPI
-  //edm::Handle<edm::ValueMap<float> > phoChargedIsolationMap_PUPPI;
-  //e.getByToken(phoChargedIsolationToken_PUPPI_, phoChargedIsolationMap_PUPPI);
-  //edm::Handle<edm::ValueMap<float> > phoPhotonIsolationMap_PUPPI;
-  //e.getByToken(phoPhotonIsolationToken_PUPPI_, phoPhotonIsolationMap_PUPPI);
-  //edm::Handle<edm::ValueMap<float> > phoNeutralHadronIsolationMap_PUPPI;
-  //e.getByToken(phoNeutralHadronIsolationToken_PUPPI_, phoNeutralHadronIsolationMap_PUPPI);
+  //edm::Handle<edm::ValueMap<float> > phoChargedIsolationMap_CITK;
+  //e.getByToken(phoChargedIsolationToken_CITK_, phoChargedIsolationMap_CITK);
+  //edm::Handle<edm::ValueMap<float> > phoPhotonIsolationMap_CITK;
+  //e.getByToken(phoPhotonIsolationToken_CITK_, phoPhotonIsolationMap_CITK);
+  //edm::Handle<edm::ValueMap<float> > phoNeutralHadronIsolationMap_CITK;
+  //e.getByToken(phoNeutralHadronIsolationToken_CITK_, phoNeutralHadronIsolationMap_CITK);
 
   EcalClusterLazyTools       lazyTool    (e, es, ebReducedRecHitCollection_, eeReducedRecHitCollection_, esReducedRecHitCollection_);
   noZS::EcalClusterLazyTools lazyToolnoZS(e, es, ebReducedRecHitCollection_, eeReducedRecHitCollection_, esReducedRecHitCollection_);
@@ -493,18 +418,6 @@ void ggNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es) {
   e.getByToken(rhoLabel_, rhoHandle);
   double rho    = *(rhoHandle.product());
 
-
-  edm::Handle<edm::View<pat::Muon> > muonHandle;
-  e.getByToken(muonCollection_, muonHandle);
-
-  edm::Handle<edm::View<pat::Electron> > electronHandle;
-  e.getByToken(electronCollection_, electronHandle);
-
-  edm::Handle<edm::View<pat::Jet> > jetHandle;
-  e.getByToken(jetsAK4Label_, jetHandle);
-
-  e.getByToken(pckPFCdsLabel_, pfCndHandle); 
-
   if (isAOD_) {
     edm::Handle<reco::PFCandidateCollection> pfAllCandidates;
     e.getByToken(pfAllParticles_, pfAllCandidates);
@@ -527,7 +440,6 @@ void ggNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es) {
     phoCalibE_        .push_back(corrEn);
 
     phoE_             .push_back(iPho->energy());
-    phoSigmaE_        .push_back(iPho->getCorrectedEnergyError(iPho->getCandidateP4type()));
     phoEt_            .push_back(iPho->et());
     phoEta_           .push_back(iPho->eta());
     phoPhi_           .push_back(iPho->phi());
@@ -557,7 +469,6 @@ void ggNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es) {
     //phoPFPhoIso_      .push_back(iPho->photonIso());
     //phoPFNeuIso_      .push_back(iPho->neutralHadronIso());
 
-	phoPFRandConeChIso_.push_back(randomConeIso((*iPho).superCluster()->eta(), pfCndHandle, *(recVtxs->begin()), electronHandle, muonHandle, jetHandle, photonHandle));
 
     ///////////////////////////////SATURATED/UNSATURATED ///from ggFlash////
     DetId seed = (iPho->superCluster()->seed()->hitsAndFractions())[0].first;
@@ -574,7 +485,7 @@ void ggNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es) {
       phoSeedTime_  .push_back(-99.);
       phoSeedEnergy_.push_back(-99.);
     }
-
+    /*
     // ECAL scale correction and smearing
     float et = iPho->et();
     unsigned int gainSeedSC = 12;
@@ -608,7 +519,7 @@ void ggNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es) {
     phoResol_phi_up_.push_back(resol_phi_up);
     phoResol_phi_dn_.push_back(resol_phi_dn);
     /////////////////////////////////END of energy and scale systematics
-    
+    */
     /// if( isBarrel ) {
     ///     EBDetId ebId(seed);
     ///     cout << "seed barrel " << ebId.ieta() << " " << ebId.iphi() << endl;
@@ -661,6 +572,7 @@ void ggNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es) {
 
     phoFiredSingleTrgs_     .push_back(matchSinglePhotonTriggerFilters(iPho->et(), iPho->eta(), iPho->phi()));
     phoFiredDoubleTrgs_     .push_back(matchDoublePhotonTriggerFilters(iPho->et(), iPho->eta(), iPho->phi()));
+    phoFiredTripleTrgs_     .push_back(matchTriplePhotonTriggerFilters(iPho->et(), iPho->eta(), iPho->phi()));
     phoFiredL1Trgs_         .push_back(matchL1TriggerFilters(iPho->et(), iPho->eta(), iPho->phi()));
 
     std::vector<float> vCov = lazyToolnoZS.localCovariances( *((*iPho).superCluster()->seed()) );
@@ -832,12 +744,9 @@ void ggNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es) {
     phoPFNeuIso_             .push_back((*phoNeutralHadronIsolationMap)[pho]);
     phoPFChWorstIso_         .push_back((*phoWorstChargedIsolationMap)[pho]);
     
-    phoCITKChIso_            .push_back((*phoChargedIsolationMap_CITK)[pho]);
-    phoCITKPhoIso_           .push_back((*phoPhotonIsolationMap_CITK)[pho]);
-    phoCITKNeuIso_           .push_back((*phoNeutralHadronIsolationMap_CITK)[pho]);
-    //phoPUPPIChIso_           .push_back((*phoChargedIsolationMap_PUPPI)[pho]);
-    //phoPUPPIPhoIso_          .push_back((*phoPhotonIsolationMap_PUPPI)[pho]);
-    //phoPUPPINeuIso_          .push_back((*phoNeutralHadronIsolationMap_PUPPI)[pho]);
+    //phoCITKChIso_            .push_back((*phoChargedIsolationMap_CITK)[pho]);
+    //phoCITKPhoIso_           .push_back((*phoPhotonIsolationMap_CITK)[pho]);
+    //phoCITKNeuIso_           .push_back((*phoNeutralHadronIsolationMap_CITK)[pho]);
     
     bool isPassLoose  = (*loose_id_decisions)[pho];
     if(isPassLoose) setbit(tmpphoIDbit, 0);
@@ -850,7 +759,7 @@ void ggNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es) {
     
     phoIDMVA_.push_back((*mvaValues)[pho]);  
     phoIDbit_.push_back(tmpphoIDbit);      
-
+    
     nPho_++;
   }
 

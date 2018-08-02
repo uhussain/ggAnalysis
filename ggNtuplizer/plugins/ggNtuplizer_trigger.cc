@@ -10,6 +10,7 @@ vector<float> trgSingleElePt[64], trgSingleEleEta[64], trgSingleElePhi[64];
 vector<float> trgDoubleElePt[64], trgDoubleEleEta[64], trgDoubleElePhi[64];
 vector<float> trgSinglePhoPt[64], trgSinglePhoEta[64], trgSinglePhoPhi[64];
 vector<float> trgDoublePhoPt[64], trgDoublePhoEta[64], trgDoublePhoPhi[64];
+vector<float> trgTriplePhoPt[64], trgTriplePhoEta[64], trgTriplePhoPhi[64];
 vector<float> trgMuPt[64],  trgMuEta[64],  trgMuPhi[64];
 vector<float> trgJetPt[64], trgJetEta[64], trgJetPhi[64];
 vector<float> trgL1Eta[64],  trgL1Phi[64];
@@ -31,6 +32,9 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
     trgDoublePhoPt [i].clear();
     trgDoublePhoEta[i].clear();
     trgDoublePhoPhi[i].clear();
+    trgTriplePhoPt [i].clear();
+    trgTriplePhoEta[i].clear();
+    trgTriplePhoPhi[i].clear();
     trgMuPt  [i].clear();
     trgMuEta [i].clear();
     trgMuPhi [i].clear();
@@ -46,6 +50,7 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
   static std::map<string,size_t> eleDoubleFilters;
   static std::map<string,size_t> phoSingleFilters;
   static std::map<string,size_t> phoDoubleFilters;
+  static std::map<string,size_t> phoTripleFilters;
   static std::map<string,size_t> muFilters;
   static std::map<string,size_t> jetFilters;
   static std::map<string,size_t> l1Filters;
@@ -119,6 +124,10 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
     eleSingleFilters["hltEle12CaloIdLTrackIdLIsoVLTrackIsoFilter"] = 33;
     eleSingleFilters["hltEle8CaloIdLTrackIdLIsoVLTrackIsoFilter"] = 34;
     eleSingleFilters["hltEle17CaloIdLTrackIdLIsoVLTrackIsoFilter"] = 35;
+    eleSingleFilters["hltMu9Ele9DZFilter"] = 36;
+    eleSingleFilters["hltMu8Ele12DZFilter"] = 37;
+    //HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v
+    eleSingleFilters["hltMu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter"] = 38;
 
     //Double electron triggers
     //HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v
@@ -132,6 +141,12 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
     eleDoubleFilters["hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg1L1TauJetSeededFilter"] = 5;
     eleDoubleFilters["hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg2L1TauJetSeededFilter"] = 6;
     eleDoubleFilters["hltEle23Ele12CaloIdLTrackIdLIsoVLDZL1TauJetSeededFilter"]           = 7;
+    eleDoubleFilters["hltEle12Ele12DZFilter"]                                             = 8;
+
+    //triple electron triggers
+    eleDoubleFilters["hltEle16Ele12Ele8CaloIdLTrackIdLDphiLeg1Filter"]                    = 9;
+    eleDoubleFilters["hltEle16Ele12Ele8CaloIdLTrackIdLDphiLeg2Filter"]                    = 10;
+    eleDoubleFilters["hltEle16Ele12Ele8CaloIdLTrackIdLDphiLeg3Filter"]                    = 11;
 
     muFilters["hltL3crIsoL1sMu20L1f0L2f10QL3f22QL3trkIsoFiltered0p09"] = 0; //HLT_IsoMu22_v2
     muFilters["hltL3crIsoL1sMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p09"] = 1; //HLT_IsoMu24_v1
@@ -157,22 +172,30 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
     muFilters["hltL3fL1sL1Mu5IsoEG18ORL1Mu5IsoEG20L1f5L2f7L3Filtered17"] = 21; //HLT_Mu17_Photon*  muon
     muFilters["hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZFilter"] = 23; //HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
     muFilters["hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter"] = 24; //HLT_Mu23_TrkIsoVVL_Ele12*
+    muFilters["hltMu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZFilter"] = 25; //DZ of HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ
+    muFilters["hltL3fL1DoubleMu7EG7f0Filtered9"] = 26;   // HLT_DiMu9_Ele9_CaloIdL_TrackIdL_DZ_v
+    muFilters["hltDoubleMu9DZFilter"] = 27;
+    muFilters["hltL3fL1Mu6DoubleEG10f0Filtered8"] = 28; // HLT_Mu8_DiEle12_CaloIdL_TrackIdL_DZ_
+    muFilters["hltDoubleMu207Mass0to30Photon23L3Filtered"] = 29;  //filter of DoubleMu20_Pho23 (2017)
+    muFilters["hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07"] = 30; //HLT_IsoMu24 (2017)
+    muFilters["hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07"] = 31; //HLT_IsoMu27 (2017)
+    muFilters["hltL3fL1sMu12Diphoton20L1f0L2f8QL3Filtered12"] = 32; //HLTMu12_DIPho20 (2017)
 
-    phoSingleFilters["hltEG22HEFilter"]        = 0;
-    phoSingleFilters["hltEG30HEFilter"]        = 1;
-    phoSingleFilters["hltEG36HEFilter"]        = 2;
-    phoSingleFilters["hltEG50HEFilter"]        = 3;
-    phoSingleFilters["hltEG75HEFilter"]        = 4;
-    phoSingleFilters["hltEG90HEFilter"]        = 5;
-    phoSingleFilters["hltEG120HEFilter"]       = 6;
-    phoSingleFilters["hltEG135HEFilter"]       = 7; //HLT_Photon135_PFMET100_v
-    phoSingleFilters["hltEG165HE10Filter"]     = 8;
-    phoSingleFilters["hltEG175HEFilter"]       = 9;
-    phoSingleFilters["hltEG250erEtFilter"]     = 10;
-    phoSingleFilters["hltEG300erEtFilter"]     = 11;
-    phoSingleFilters["hltEG500HEFilter"]       = 12;
-    phoSingleFilters["hltEG600HEFilter"]       = 13;
-    phoSingleFilters["hltEG90CaloIdLHEFilter"] = 14; //HLT_Photon90_CaloIdL_PFHT600_v
+    phoSingleFilters["hltEG33L1EG26HEFilter"]                = 0;
+    phoSingleFilters["hltEG50HEFilter"]                      = 1;
+    phoSingleFilters["hltEG75HEFilter"]                      = 2;
+    phoSingleFilters["hltEG90HEFilter"]                      = 3;
+    phoSingleFilters["hltEG120HEFilter"]                     = 4;
+    phoSingleFilters["hltEG150HEFilter"]                     = 5;
+    phoSingleFilters["hltEG175HEFilter"]                     = 6;
+    phoSingleFilters["hltEG200HEFilter"]                     = 7; 
+    phoSingleFilters["hltEG300erEtFilter"]                   = 8;
+    phoSingleFilters["hltHtEcal800"]                         = 9;
+    phoSingleFilters["hltEG50R9Id90HE10IsoMTrackIsoFilter"]  = 10;
+    phoSingleFilters["hltEG75R9Id90HE10IsoMTrackIsoFilter"]  = 11;
+    phoSingleFilters["hltEG90R9Id90HE10IsoMTrackIsoFilter"]  = 12;
+    phoSingleFilters["hltEG120R9Id90HE10IsoMTrackIsoFilter"] = 13;
+    phoSingleFilters["hltEG165R9Id90HE10IsoMTrackIsoFilter"] = 14;
 
     //L1 seed for diphoton triggers  
     phoDoubleFilters["hltSingleEGL1SingleEG40ORL1SingleEG25ORL1DoubleEG2210ORL1DoubleEG1510Filter"]         = 0;
@@ -214,7 +237,32 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
     phoDoubleFilters["hltMu17Photon22CaloIdLL1ISOHEFilter"]                                                 = 27;
     phoDoubleFilters["hltMu17Photon30CaloIdLL1ISOHEFilter"]                                                 = 28;
     phoDoubleFilters["hltMu17Photon30CaloIdLL1ISOORHEFilter"]                                               = 29;
+    phoDoubleFilters["hltEG70HEFilter"]                                                                     = 30; //seeded leg of DoublePho70
+    phoDoubleFilters["hltDiEG70HEUnseededFilter"]                                                           = 31; //unseeded leg of DoublePho70
+    phoDoubleFilters["hltMu12DiEG20HEUnseededFilter"]                                                       = 32; //filter of Mu12_DiPho20
 
+    //triple photon filter                                                           
+    phoTripleFilters["hltEG20CaloIdLV2ClusterShapeL1TripleEGFilter"]         = 0;  //1st leg of TriplePho20_Calo
+    phoTripleFilters["hltTriEG20CaloIdLV2ClusterShapeUnseededFilter"]        = 1;  //3rd leg of TriplePho20_Calo
+
+    phoTripleFilters["hltEG20CaloIdLV2R9IdVLR9IdL1TripleEGFilter"]           = 2;  //1st leg of TriplePho20_Calo_R9
+    phoTripleFilters["hltTriEG20CaloIdLV2R9IdVLR9IdUnseededFilter"]          = 3;  //3rd leg of TriplePho20_Calo_R9
+
+    phoTripleFilters["hltEG30CaloIdLV2ClusterShapeL1TripleEGFilter"]         = 4;  //1st leg Seeded_30 of TriplePho30_30_10_Calo
+    phoTripleFilters["hltEG10CaloIdLV2ClusterShapeUnseededFilter"]           = 5;  //1st leg UnSeeded_10 of TriplePho30_30_10_Calo
+    phoTripleFilters["hltDiEG30CaloIdLV2EtUnseededFilter"]                   = 6;  //2nd leg UnSeeded_30 of TriplePho30_30_10_Calo
+    phoTripleFilters["hltDiEG30TriEG10CaloIdLV2EtUnseededFilter"]            = 7;  //3 legs of TriplePho30_30_10_Calo (last filter)
+
+    phoTripleFilters["hltEG30CaloIdLV2R9IdVLR9IdL1TripleEGFilter"]           = 8;  //1st leg Seeded_30 of TriplePho30_30_10_Calo_R9
+    phoTripleFilters["hltEG10CaloIdLV2R9IdVLR9IdUnseededFilter"]             = 9;  //1st leg UnSeeded_10 of TriplePho30_30_10_Calo_R9
+    phoTripleFilters["hltDiEG30CaloIdLV2R9IdVLEtUnseededFilter"]             = 10; //2nd leg UnSeeded_30 of TriplePho30_30_10_Calo_R9
+    phoTripleFilters["hltDiEG30TriEG10HECaloIdV2R9IdVLEtUnseededFilter"]     = 11; //3 legs of TriplePho30_30_10_Calo_R9 (last filter)
+
+    phoTripleFilters["hltEG35CaloIdLV2R9IdVLR9IdL1TripleEGFilter"]           = 12; //1st leg Seeded_35 of TriplePho35_35_5_Calo_R9
+    phoTripleFilters["hltEG5CaloIdLV2R9IdVLR9IdUnseededFilter"]              = 13; //1st leg UnSeeded_5 of TriplePho35_35_5_Calo_R9
+    phoTripleFilters["hltDiEG35CaloIdLV2R9IdVLEtUnseededFilter"]             = 14; //2nd leg UnSeeded_35 of TriplePho35_35_5_Calo_R9
+    phoTripleFilters["hltDiEG35TriEG5CaloIdLV2R9IdVLEtUnseededFilter"]       = 15; //3 legs of TriplePho35_35_5_Calo_R9 (last filter)
+    
     jetFilters["hltSinglePFJet40"]  =  0;
     jetFilters["hltSinglePFJet60"]  =  1;
     jetFilters["hltSinglePFJet80"]  =  2;
@@ -260,139 +308,34 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
     l1Filters["hltL1sSingleAndDoubleEGNonIsoOrWithEG26WithJetAndTau"] = 31;
     
   }
-  
-  // AOD vs miniAOD
-  if (isAOD_) {
-    edm::Handle<trigger::TriggerEvent> triggerHandle;
-    e.getByToken(trgEventLabel_, triggerHandle);
-
-    const trigger::TriggerObjectCollection& trgObjects = triggerHandle->getObjects();
-
-    // loop over particular filters (and not over full HLTs)
-    for (trigger::size_type iF = 0; iF != triggerHandle->sizeFilters(); ++iF) {
-      // full filter name and its keys each corresponding to a matched (pt, eta, phi, ...) object
-      string const&        label = triggerHandle->filterTag(iF).label();
-      const trigger::Keys& keys  = triggerHandle->filterKeys(iF);
-
-      std::map<string,size_t>::iterator idxEleSingle = eleSingleFilters.find(label);
-      std::map<string,size_t>::iterator idxEleDouble = eleDoubleFilters.find(label);
-      std::map<string,size_t>::iterator idxPhoSingle = phoSingleFilters.find(label);
-      std::map<string,size_t>::iterator idxPhoDouble = phoDoubleFilters.find(label);
-      std::map<string,size_t>::iterator idxMu  = muFilters.find(label);
-      std::map<string,size_t>::iterator idxJet = jetFilters.find(label);
-      std::map<string,size_t>::iterator idxL1  = l1Filters.find(label);
-
-      // single electron filters
-      if (idxEleSingle != eleSingleFilters.end()) {
-        size_t idx = idxEleSingle->second;
-
-        for (size_t iK = 0; iK < keys.size(); ++iK) {
-          const trigger::TriggerObject& trgV = trgObjects.at(keys[iK]);
-          trgSingleElePt [idx].push_back(trgV.pt());
-          trgSingleEleEta[idx].push_back(trgV.eta());
-          trgSingleElePhi[idx].push_back(trgV.phi());
-        }
-      }
-
-      // double electron filters
-      if (idxEleDouble != eleDoubleFilters.end()) {
-        size_t idx = idxEleDouble->second;
-
-        for (size_t iK = 0; iK < keys.size(); ++iK) {
-          const trigger::TriggerObject& trgV = trgObjects.at(keys[iK]);
-          trgDoubleElePt [idx].push_back(trgV.pt());
-          trgDoubleEleEta[idx].push_back(trgV.eta());
-          trgDoubleElePhi[idx].push_back(trgV.phi());
-        }
-      }
-
-      // single photon filters
-      if (idxPhoSingle != phoSingleFilters.end()) {
-        size_t idx = idxPhoSingle->second;
-
-        for (size_t iK = 0; iK < keys.size(); ++iK) {
-          const trigger::TriggerObject& trgV = trgObjects.at(keys[iK]);
-          trgSinglePhoPt [idx].push_back(trgV.pt());
-          trgSinglePhoEta[idx].push_back(trgV.eta());
-          trgSinglePhoPhi[idx].push_back(trgV.phi());
-        }
-      }
-
-      // double photon filters
-      if (idxPhoDouble != phoDoubleFilters.end()) {
-        size_t idx = idxPhoDouble->second;
-
-        for (size_t iK = 0; iK < keys.size(); ++iK) {
-          const trigger::TriggerObject& trgV = trgObjects.at(keys[iK]);
-          trgDoublePhoPt [idx].push_back(trgV.pt());
-          trgDoublePhoEta[idx].push_back(trgV.eta());
-          trgDoublePhoPhi[idx].push_back(trgV.phi());
-        }
-      }
-
-      // muon filters
-      if (idxMu != muFilters.end()) {
-        size_t idx = idxMu->second;
-
-        for (size_t iK = 0; iK < keys.size(); ++iK) {
-          const trigger::TriggerObject& trgV = trgObjects.at(keys[iK]);
-          trgMuPt [idx].push_back(trgV.pt());
-          trgMuEta[idx].push_back(trgV.eta());
-          trgMuPhi[idx].push_back(trgV.phi());
-        }
-      }
-
-      // jet filters
-      if (idxJet != jetFilters.end()) {
-        size_t idx = idxJet->second;
-
-        for (size_t iK = 0; iK < keys.size(); ++iK) {
-          const trigger::TriggerObject& trgV = trgObjects.at(keys[iK]);
-	  //cout<<"key : "<<label<<" "<<iK<<" "<<keys[iK]<<" "<<trgV.pt()<<" "<<trgV.eta()<<" "<<trgV.phi()<<endl;
-          trgJetPt [idx].push_back(trgV.pt());
-          trgJetEta[idx].push_back(trgV.eta());
-          trgJetPhi[idx].push_back(trgV.phi());
-        }
-      }
-
-      // L1 filters
-      if (idxL1 != l1Filters.end()) {
-        size_t idx = idxL1->second;
-
-        for (size_t iK = 0; iK < keys.size(); ++iK) {
-          const trigger::TriggerObject& trgV = trgObjects.at(keys[iK]);
-          trgL1Eta[idx].push_back(trgV.eta());
-          trgL1Phi[idx].push_back(trgV.phi());
-        }
-      }
-    } // HLT filter loop
-
-    return;
-  } // if AOD
-
-  //
-  // miniAOD treatment
-  //
-
+ 
   edm::Handle<pat::TriggerObjectStandAloneCollection> triggerHandleMiniAOD;
   e.getByToken(triggerObjectsLabel_, triggerHandleMiniAOD);
 
   edm::Handle<edm::TriggerResults> trgResultsHandle;
   e.getByToken(trgResultsLabel_, trgResultsHandle);
 
-  const edm::TriggerNames &names = e.triggerNames(*trgResultsHandle);
+  edm::Handle<std::string> filterLabels_;
+  e.getByLabel("slimmedPatTrigger:filterLabels", filterLabels_);
+
+  //const edm::TriggerNames &names = e.triggerNames(*trgResultsHandle);
 
   for (pat::TriggerObjectStandAlone obj : *triggerHandleMiniAOD) {
-    obj.unpackPathNames(names);
+    //obj.unpackPathNames(names);
+    //obj.unpackPathNames(e);
+    obj.unpackFilterLabels(e, *trgResultsHandle);
 
-    // loop over filters
+    // loop over filters    
     for (size_t iF = 0; iF < obj.filterLabels().size(); ++iF) {
       string label = obj.filterLabels()[iF];
+
+      //cout<<"label : "<<iF<<" "<<label<<endl;
 
       std::map<string,size_t>::iterator idxEleSingle = eleSingleFilters.find(label);
       std::map<string,size_t>::iterator idxEleDouble = eleDoubleFilters.find(label);
       std::map<string,size_t>::iterator idxPhoSingle = phoSingleFilters.find(label);
       std::map<string,size_t>::iterator idxPhoDouble = phoDoubleFilters.find(label);
+      std::map<string,size_t>::iterator idxPhoTriple = phoTripleFilters.find(label);
       std::map<string,size_t>::iterator idxMu  = muFilters.find(label);
       std::map<string,size_t>::iterator idxJet = jetFilters.find(label);
       std::map<string,size_t>::iterator idxL1 = l1Filters.find(label);
@@ -403,6 +346,7 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
         trgSingleElePt [idx].push_back(obj.pt());
         trgSingleEleEta[idx].push_back(obj.eta());
         trgSingleElePhi[idx].push_back(obj.phi());
+	//cout<<idx<<" "<<obj.pt()<<" "<<obj.eta()<<" "<<obj.phi()<<endl;
       }
 
       // double electron filters
@@ -427,6 +371,14 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
         trgDoublePhoPt [idx].push_back(obj.pt());
         trgDoublePhoEta[idx].push_back(obj.eta());
         trgDoublePhoPhi[idx].push_back(obj.phi());
+      }
+
+      //triple photon filters
+      if (idxPhoTriple != phoTripleFilters.end()) {
+        size_t idx = idxPhoTriple->second;
+        trgTriplePhoPt [idx].push_back(obj.pt());
+        trgTriplePhoEta[idx].push_back(obj.eta());
+	trgTriplePhoPhi[idx].push_back(obj.phi());
       }
 
       // muon filters
@@ -465,7 +417,7 @@ ULong64_t ggNtuplizer::matchSingleElectronTriggerFilters(double pt, double eta, 
     for (size_t v = 0; v < trgSingleElePt[f].size(); ++v)
       if (fabs(pt - trgSingleElePt[f][v])/trgSingleElePt[f][v] < trgFilterDeltaPtCut_ &&
           deltaR(eta, phi, trgSingleEleEta[f][v], trgSingleElePhi[f][v]) < trgFilterDeltaRCut_) {
-        result |= (1ULL<<f);
+        result |= (1<<f);
         break;
       }
 
@@ -481,7 +433,7 @@ ULong64_t ggNtuplizer::matchDoubleElectronTriggerFilters(double pt, double eta, 
     for (size_t v = 0; v < trgDoubleElePt[f].size(); ++v)
       if (fabs(pt - trgDoubleElePt[f][v])/trgDoubleElePt[f][v] < trgFilterDeltaPtCut_ &&
           deltaR(eta, phi, trgDoubleEleEta[f][v], trgDoubleElePhi[f][v]) < trgFilterDeltaRCut_) {
-        result |= (1ULL<<f);
+        result |= (1<<f);
         break;
       }
 
@@ -497,7 +449,7 @@ ULong64_t ggNtuplizer::matchSinglePhotonTriggerFilters(double pt, double eta, do
     for (size_t v = 0; v < trgSinglePhoPt[f].size(); ++v)
       if (fabs(pt - trgSinglePhoPt[f][v])/trgSinglePhoPt[f][v] < trgFilterDeltaPtCut_ &&
           deltaR(eta, phi, trgSinglePhoEta[f][v], trgSinglePhoPhi[f][v]) < trgFilterDeltaRCut_) {
-        result |= (1ULL<<f);
+        result |= (1<<f);
         break;
       }
 
@@ -513,12 +465,30 @@ ULong64_t ggNtuplizer::matchDoublePhotonTriggerFilters(double pt, double eta, do
     for (size_t v = 0; v < trgDoublePhoPt[f].size(); ++v)
       if (fabs(pt - trgDoublePhoPt[f][v])/trgDoublePhoPt[f][v] < trgFilterDeltaPtCut_ &&
           deltaR(eta, phi, trgDoublePhoEta[f][v], trgDoublePhoPhi[f][v]) < trgFilterDeltaRCut_) {
-        result |= (1ULL<<f);
+        result |= (1<<f);
         break;
       }
 
   return result;
 }
+
+ULong64_t ggNtuplizer::matchTriplePhotonTriggerFilters(double pt, double eta, double phi) {
+
+  // bits in the return value correspond to decisions from filters defined above 
+  UInt_t result = 0;
+
+  for (size_t f = 0; f < 64; ++f)
+    for (size_t v = 0; v < trgTriplePhoPt[f].size(); ++v)
+      if (fabs(pt - trgTriplePhoPt[f][v])/trgTriplePhoPt[f][v] < trgFilterDeltaPtCut_ &&
+          deltaR(eta, phi, trgTriplePhoEta[f][v], trgTriplePhoPhi[f][v]) < trgFilterDeltaRCut_) {
+        result |= (1<<f);
+        break;
+      }
+
+  return result;
+}
+
+
 
 ULong64_t ggNtuplizer::matchMuonTriggerFilters(double pt, double eta, double phi) {
 
@@ -529,7 +499,7 @@ ULong64_t ggNtuplizer::matchMuonTriggerFilters(double pt, double eta, double phi
     for (size_t v = 0; v < trgMuPt[f].size(); ++v)
       if (fabs(pt - trgMuPt[f][v])/trgMuPt[f][v] < trgFilterDeltaPtCut_ &&
           deltaR(eta, phi, trgMuEta[f][v], trgMuPhi[f][v]) < trgFilterDeltaRCut_) {
-        result |= (1ULL<<f);
+        result |= (1<<f);
         break;
       }
 
@@ -545,7 +515,7 @@ ULong64_t ggNtuplizer::matchJetTriggerFilters(double pt, double eta, double phi)
     for (size_t v = 0; v < trgJetPt[f].size(); ++v)
       if (fabs(pt - trgJetPt[f][v])/trgJetPt[f][v] < trgFilterDeltaPtCut_ &&
           deltaR(eta, phi, trgJetEta[f][v], trgJetPhi[f][v]) < trgFilterDeltaRCut_) {
-        result |= (1ULL<<f);
+        result |= (1<<f);
         break;
       }
 
@@ -560,7 +530,7 @@ ULong64_t ggNtuplizer::matchL1TriggerFilters(double pt, double eta, double phi) 
   for (size_t f = 0; f < 64; ++f)
     for (size_t v = 0; v < trgL1Eta[f].size(); ++v)
       if (deltaR(eta, phi, trgL1Eta[f][v], trgL1Phi[f][v]) < trgFilterDeltaRCut_) {
-        result |= (1ULL<<f);
+        result |= (1<<f);
         break;
       }
 
