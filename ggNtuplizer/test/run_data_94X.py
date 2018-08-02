@@ -12,16 +12,18 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag, '94X_dataRun2_ReReco_EOY17_v2')
-process.GlobalTag = GlobalTag(process.GlobalTag, '94X_dataRun2_v6')
+process.GlobalTag = GlobalTag(process.GlobalTag, '101X_dataRun2_Prompt_v9')
 
 #process.Tracer = cms.Service("Tracer")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-        '/store/data/Run2017B/MET/MINIAOD/31Mar2018-v1/90000/4C28A1EE-3437-E811-A95A-008CFAE45328.root'
+        '/store/data/Run2018B/MET/MINIAOD/PromptReco-v1/000/317/392/00000/C65866E5-316A-E811-8752-FA163E6153CB.root'
+        #'/store/data/Run2018B/MET/MINIAOD/PromptReco-v1/000/317/949/00000/545B096E-F873-E811-A467-FA163E874CD8.root'
+        #'/store/data/Run2017B/MET/MINIAOD/31Mar2018-v1/90000/4C28A1EE-3437-E811-A95A-008CFAE45328.root'
         )
                             )
 
@@ -32,8 +34,8 @@ process.load( "PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cff" )
 process.load( "PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff" )
 
 ### EGM scale and smearing correction
-process.load('EgammaAnalysis.ElectronTools.calibratedPatElectronsRun2_cfi')
-process.load('EgammaAnalysis.ElectronTools.calibratedPatPhotonsRun2_cfi')
+#process.load('EgammaAnalysis.ElectronTools.calibratedPatElectronsRun2_cfi')
+#process.load('EgammaAnalysis.ElectronTools.calibratedPatPhotonsRun2_cfi')
 
 #from PhysicsTools.PatAlgos.tools.cmsswVersionTools import *
 from PhysicsTools.PatAlgos.tools.coreTools import *
@@ -104,8 +106,8 @@ for idmod in my_phoid_modules:
         ###process.pfBoostedDoubleSecondaryVertexAK8BJetTags *        
         #process.fullPatMetSequence* 
         #process.egcorrMET*
-        process.calibratedPatElectrons*
-        process.calibratedPatPhotons*
+        #process.calibratedPatElectrons*
+        #process.calibratedPatPhotons*
         process.egmGsfElectronIDSequence*
         process.egmPhotonIDSequence*
         process.ggNtuplizer
