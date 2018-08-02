@@ -1,6 +1,6 @@
 ##### To work with CMSSW_9_4_4 you do :
 
-cd CMSSW_9_4_4/src <br>
+cd CMSSW_10_1_6/src <br>
 cmsenv <br>
 git cms-init <br>
 git cms-merge-topic lsoffi:CMSSW_9_4_0_pre3_TnP <br>
