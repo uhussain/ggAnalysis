@@ -1,32 +1,34 @@
 ##### To work with CMSSW_9_4_4 you do :
 
-cd CMSSW_9_4_4/src 
-cmsenv 
-git cms-init 
-git cms-merge-topic lsoffi:CMSSW_9_4_0_pre3_TnP 
-git cms-merge-topic guitargeek:ElectronID_MVA2017_940pre3 
-scram b -j8 
-cd $CMSSW_BASE/external/slc6_amd64_gcc630 
-git clone https://github.com/lsoffi/RecoEgamma-PhotonIdentification.git data/RecoEgamma/PhotonIdentification/data
-cd data/RecoEgamma/PhotonIdentification/data 
-git checkout CMSSW_9_4_0_pre3_TnP 
-cd $CMSSW_BASE/external/slc6_amd64_gcc630/ 
-git clone https://github.com/lsoffi/RecoEgamma-ElectronIdentification.git data/RecoEgamma/ElectronIdentification/data 
-cd data/RecoEgamma/ElectronIdentification/data 
-git checkout CMSSW_9_4_0_pre3_TnP 
-cd $CMSSW_BASE/src 
-git cms-merge-topic cms-egamma:EGM_94X_v1 
-cd EgammaAnalysis/ElectronTools/data 
-git clone https://github.com/ECALELFS/ScalesSmearings.git 
-cd ScalesSmearings/ 
-git checkout Run2017_17Nov2017_v1 
-cd $CMSSW_BASE/src 
-git clone https://github.com/cmkuo/HiggsAnalysis.git 
-
+cd CMSSW_9_4_4/src <br>
+cmsenv <br>
+git cms-init <br>
+git cms-merge-topic lsoffi:CMSSW_9_4_0_pre3_TnP <br>
+git cms-merge-topic guitargeek:ElectronID_MVA2017_940pre3 <br>
+scram b -j8 <br>
+cd $CMSSW_BASE/external/slc6_amd64_gcc630 <br>
+git clone https://github.com/lsoffi/RecoEgamma-PhotonIdentification.git data/RecoEgamma/PhotonIdentification/data <br>
+cd data/RecoEgamma/PhotonIdentification/data <br>
+git checkout CMSSW_9_4_0_pre3_TnP <br>
+cd $CMSSW_BASE/external/slc6_amd64_gcc630/ <br>
+git clone https://github.com/lsoffi/RecoEgamma-ElectronIdentification.git data/RecoEgamma/ElectronIdentification/data <br>
+cd data/RecoEgamma/ElectronIdentification/data <br>
+git checkout CMSSW_9_4_0_pre3_TnP <br>
+cd $CMSSW_BASE/src <br>
+git cms-merge-topic cms-egamma:EGM_94X_v1 <br>
+cd EgammaAnalysis/ElectronTools/data <br>
+git clone https://github.com/ECALELFS/ScalesSmearings.git <br>
+cd ScalesSmearings/ <br>
+git checkout Run2017_17Nov2017_v1 <br>
+cd $CMSSW_BASE/src <br>
+git clone https://github.com/cmkuo/HiggsAnalysis.git <br>
 git clone -b Zprime2017 git@github.com:uhussain/ggAnalysis.git <br>
 
 scram b -j 10 <br>
 
+###For Crab submission, do this additonal step to avoid errors:
+cp -r $CMSSW_BASE/external/slc6_amd64_gcc630/data/RecoEgamma/ElectronIdentification/data/ $CMSSW_BASE/src/RecoEgamma/ElectronIdentification/ <br>
+cp -r $CMSSW_BASE/external/slc6_amd64_gcc630/data/RecoEgamma/PhotonIdentification/data/ $CMSSW_BASE/src/RecoEgamma/PhotonIdentification/ <br>
 
 The above code stores the decision in 64 integer. Each bit represents a decision<br>
 for ELECRON ID: 5 IDs (Veto, Loose, Medium, Tight and HEEP) so only 5 bits are imp for us (59 bits of this integer  we are not using so may be we can change that to 16 bit integer later)<br>
