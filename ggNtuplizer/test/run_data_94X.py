@@ -21,7 +21,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-        '/store/data/Run2017B/MET/MINIAOD/31Mar2018-v1/90000/4C28A1EE-3437-E811-A95A-008CFAE45328.root'
+        'root://eoscms.cern.ch//eos/cms/store/data/Run2017B/MET/MINIAOD/31Mar2018-v1/80000/C8156D7B-7737-E811-878E-008CFAC94234.root'
+        #'store/data/Run2017B/MET/MINIAOD/31Mar2018-v1/80000/C8156D7B-7737-E811-878E-008CFAC94234.root'
         )
                             )
 

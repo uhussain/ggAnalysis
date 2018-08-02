@@ -28,15 +28,16 @@ config.JobType.outputFiles = ['ggtree_data.root']
 #config.JobType.inputFiles = ['Summer16_23Sep2016AllV4_DATA.db','Summer16_23Sep2016BCDV4_DATA_L2Relative_AK8PFchs.txt','Summer16_23Sep2016BCDV4_DATA_L3Absolute_AK8PFchs.txt','Summer16_23Sep2016BCDV4_DATA_L2L3Residual_AK8PFchs.txt']
 config.section_('Data') 
 #config.Data.inputDBS = 'global'
-config.Data.splitting = 'LumiBased'
+config.Data.splitting = 'Automatic'
+#config.Data.splitting = 'LumiBased'
 config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
 #Already submitted:
-listOfSamples = ['dataset1','dataset2','dataset3','dataset4','dataset5']
+listOfSamples = ['dataset1','dataset2','dataset3','dataset4']
 #listOfSamples = ['dataset5']
 for sample in listOfSamples:  
   config.General.requestName = sample
   config.Data.inputDataset = dataset[sample]
-  config.Data.unitsPerJob = 15
+  config.Data.unitsPerJob = 180
   config.Data.totalUnits = -1
   config.Data.outLFNDirBase = '/store/user/uhussain/'+name
   submit(config)
