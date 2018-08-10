@@ -16,14 +16,15 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '101X_dataRun2_Prompt_v9')
 
 #process.Tracer = cms.Service("Tracer")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-        '/store/data/Run2018B/MET/MINIAOD/PromptReco-v1/000/317/392/00000/C65866E5-316A-E811-8752-FA163E6153CB.root'
+        #'/store/data/Run2018B/MET/MINIAOD/PromptReco-v1/000/317/392/00000/C65866E5-316A-E811-8752-FA163E6153CB.root'
         #'/store/data/Run2018B/MET/MINIAOD/PromptReco-v1/000/317/949/00000/545B096E-F873-E811-A467-FA163E874CD8.root'
         #'/store/data/Run2017B/MET/MINIAOD/31Mar2018-v1/90000/4C28A1EE-3437-E811-A95A-008CFAE45328.root'
+        '/store/relval/CMSSW_10_1_7/MET/MINIAOD/101X_dataRun2_Prompt_v11_RelVal_met2018B-v1/10000/56D75E37-F07F-E811-B90C-0CC47A74524E.root','/store/relval/CMSSW_10_1_7/MET/MINIAOD/101X_dataRun2_Prompt_v11_RelVal_met2018B-v1/10000/BE4AFD69-EE7F-E811-B6EF-00248C55CC3C.root','/store/relval/CMSSW_10_1_7/MET/MINIAOD/101X_dataRun2_Prompt_v11_RelVal_met2018B-v1/10000/1E6B0659-F37F-E811-BACA-0025905A607A.root'
         )
                             )
 
@@ -52,7 +53,7 @@ runOnData( process,  names=['Photons', 'Electrons','Muons','Taus','Jets'], outpu
 #process.load("RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderTagInfosAK8_cfi")
 #process.pfInclusiveSecondaryVertexFinderTagInfosAK8.extSVCollection = cms.InputTag("slimmedSecondaryVertices")
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string('ggtree_data.root'))
+process.TFileService = cms.Service("TFileService", fileName = cms.string('RelValMET_HEMON.root'))
 
 # MET correction and uncertainties
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
@@ -69,7 +70,8 @@ process.ggNtuplizer.doGenParticles=cms.bool(False)
 process.ggNtuplizer.dumpSubJets=cms.bool(False)
 process.ggNtuplizer.dumpJets=cms.bool(True)
 process.ggNtuplizer.dumpTaus=cms.bool(False)
-
+#Turn on MET filters
+process.ggNtuplizer.addFilterInfoMINIAOD=cms.bool(True)
 #####VID framework####################
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 dataFormat = DataFormat.MiniAOD

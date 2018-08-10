@@ -30,7 +30,7 @@ ggNtuplizer = cms.EDAnalyzer("ggNtuplizer",
 
                              triggerEvent      = cms.InputTag("hltTriggerSummaryAOD", "", "HLT"),
                              triggerResults    = cms.InputTag("TriggerResults", "", "HLT"),
-                             patTriggerResults = cms.InputTag("TriggerResults", "", "PAT"),
+                             patTriggerResults = cms.InputTag("TriggerResults", "", "RECO"),
                              genParticleSrc    = cms.InputTag("genParticles"),
                              generatorLabel    = cms.InputTag("generator"),
                              LHEEventLabel     = cms.InputTag("externalLHEProducer"),
